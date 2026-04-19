@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý lớp học</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-classes.css}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+
+<body>
+	<div th:replace="~{fragments/sidebar :: admin-sidebar}"></div>
+	<div class="container">
+	    <a class="back" href="/admin/dashboard">⬅ Quay lại Dashboard</a>
+	
+	    <div th:if="${param.error}" class="alert-error">
+	        ❌ <span th:text="${param.error == 'conflict' ? 'Giảng viên hoặc Phòng học đã bị trùng lịch!' : 'Lỗi hệ thống: ' + param.error}"></span>
+	    </div>
+	    <div th:if="${param.success}" class="alert-success">
+	        ✅ Tạo lớp học mới thành công!
+	    </div>
+	
+	    <div class="header">
+	        <h2>📚 Quản lý lớp học</h2>
+	        <button class="btn btn-primary" onclick="openModal()">+ Mở lớp mới</button>
+	    </div>
+	
+	    <div class="filter-card">
+		    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+		        <input type="text" id="searchBox" class="input" placeholder="🔍 Mã lớp, tên môn..." onkeyup="filterClasses()">
+		
+		        <select id="semesterFilter" onchange="filterClasses()" class="input">
+		            <option value="ALL">-- Tất cả học kỳ --</option>
+		            <option th:each="s : ${semesters}" 
+		                    th:value="${s.semesterId}" 
+		                    th:text="${s.term + ' (' + s.year + ')'}">
+		            </option>
+		        </select>
+		
+		        <select id="majorFilter" onchange="filterClasses()" class="input">
+		            <option value="ALL">-- Tất cả ngành --</option>
+		            <option th:each="m : ${allMajors}" th:value="${m.majorId}" th:text="${m.majorName}"></option>
+		            <option value="DC">Đại cương</option>
+		        </select>
+		
+		        <select id="trainingFilter" onchange="filterClasses()" class="input">
+		            <option value="ALL">-- Hệ đào tạo --</option>
+		            <option value="Đại trà">Đại trà</option>
+		            <option value="Chất lượng cao">Chất lượng cao</option>
+		        </select>
+		    </div>
+		</div>
+		
+		<div class="card">
+		    <table class="table">
+		        <thead>
+		            <tr>
+		                <th>Tên lớp</th>
+		                <th>Môn học</th>
+		                <th>Ngành</th>
+		                <th>Hệ Đào Tạo</th>
+		                <th>Giảng viên</th>
+		                <th>Sĩ số</th>
+		            </tr>
+		        </thead>
+		        <tbody id="classTableBody">
+		            <tr th:each="cls : ${classes}"
+					    class="class-row"
+					    th:data-major="${cls.majorId != null ? cls.majorId : 'DC'}"
+					    th:data-semester="${cls.semesterId}"
+					    th:data-training="${cls.trainingType != null ? cls.trainingType : 'Đại trà'}">
+		                <td>
+		                    <span th:text="${cls.className}" style="font-weight: 600; color: #2563eb;"></span>
+		                </td>
+						<td>
+						    <div style="font-weight: 600;" th:text="${cls.courseName}"></div>
+						</td>
+						<td>
+							<small style="background: #eef2ff; color: #4338ca; padding: 2px 6px; border-radius: 4px; border: 1px solid #c7d2fe;">
+						        <span th:text="${cls.courseMajorName != null ? cls.courseMajorName : 'Đại cương'}"></span>
+						    </small>	
+						</td>
+		                <td>
+		                    <span th:if="${cls.trainingType == 'Chất lượng cao'}" class="badge-clc" 
+		                          style="background: #fff7ed; color: #ea580c; border: 1px solid #fdba74; padding: 2px 8px; border-radius: 4px; font-size: 11px;">CLC</span>
+		                    <span th:unless="${cls.trainingType == 'Chất lượng cao'}" style="color: #64748b;">Đại trà</span>
+		                </td>
+		                <td th:text="${cls.instructorName != null ? cls.instructorName : 'Chưa phân công'}"></td>
+		                <td th:text="${cls.currentStudents + '/' + cls.maxStudents}"></td>
+		            </tr>
+		        </tbody>
+		    </table>
+		</div>
+	
+	<div class="modal" id="modal">
+	    <div class="modal-content">
+	        <h3 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">Mở lớp học & Chia nhóm thực hành</h3>
+	        
+	        <form action="/admin/create" method="post" id="createClassForm">
+	            <div class="form-grid">
+	                <div>
+					    <label>Môn học (Tìm kiếm)</label>
+					    <select name="courseId" id="courseSelect" class="input" required>
+						    <option value="">-- Chọn môn học --</option>
+						    <option th:each="c : ${courses}" 
+						            th:value="${c.courseId}" 
+						            th:text="${c.courseId + ' - ' + c.courseName + ' [' + (c.majorName != null ? c.majorName : 'Đại cương') + ']'}">
+						    </option>
+						</select>
+					</div>
+	                <div>
+					    <label>Giảng viên phụ trách</label>
+					    <select name="instructorId" id="instructorSelect" class="input" required>
+					        <option value="">-- Chọn giảng viên --</option>
+					        <option th:each="i : ${instructor}" 
+					                th:value="${i.instructorId}" 
+					                th:text="${i.fullName}">
+					        </option>
+					    </select>
+					</div>
+	            </div>
+				<div style="margin-bottom: 15px;">
+				    <label><strong>Tên lớp học</strong></label>
+				    <input type="text" name="className" class="input" placeholder="Ví dụ: CNTT01, QTKD02..." required>
+				</div>
+				<div style="flex: 1;">
+			        <label>Hệ đào tạo</label>
+			        <select name="trainingType" class="input">
+			            <option value="Đại trà">Đại trà</option>
+			            <option value="Chất lượng cao">Chất lượng cao</option>
+			        </select>
+			    </div>
+	            <div class="section-box">
+	                <h4 class="section-title">📘 Lịch Lý thuyết</h4>
+	                <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 10px;">
+	                    <div>
+	                        <label>Thứ</label>
+	                        <select name="theoryDay" class="input">
+	                            <option value="2">Thứ 2</option><option value="3">Thứ 3</option>
+	                            <option value="4">Thứ 4</option><option value="5">Thứ 5</option>
+	                            <option value="6">Thứ 6</option><option value="7">Thứ 7</option>
+	                        </select>
+	                    </div>
+	                    <div>
+	                        <label>Tiết (VD: 1-3)</label>
+	                        <input type="text" name="rawSchedules" class="input" placeholder="1-3" required pattern="\d+-\d+">
+	                    </div>
+	                    <div>
+	                        <label>Phòng học</label>
+	                        <select name="theoryRoomId" id="theoryRoomId" class="input">
+							    <option value="">-- Chọn phòng --</option>
+							    <option th:each="r : ${rooms}"
+							            th:value="${r.roomId}"
+							            th:text="${r.roomName}">
+							    </option>
+							</select>
+	                    </div>
+	                </div>
+	            </div>
+				
+	            <div id="labGroupsContainer" style="margin-top: 15px;">
+	                </div>
+	
+	            <button type="button" class="btn" style="background: #27ae60; color:white; width: 100%; margin-top: 10px;" onclick="addLabRow()">+ Thêm nhóm thực hành</button>
+	
+	            <div style="margin-top: 20px;">
+	                <label>Sĩ số tối đa</label>
+	                <input type="number" name="max" class="input" value="40" min="1" required>
+	            </div>
+	
+	            <div style="margin-top: 20px; text-align: right; border-top: 1px solid #eee; padding-top: 15px;">
+	                <button type="button" class="btn" style="background: #95a5a6; color: white; margin-right: 10px;" onclick="closeModal()">Hủy bỏ</button>
+	                <button type="submit" class="btn btn-primary">Xác nhận mở lớp</button>
+	            </div>
+	        </form>
+	    </div>
+	</div>
+	
+	<script>
+		$(document).ready(function () {
+			$('#courseSelect').select2({
+			    dropdownParent: $('#modal'),
+			    width: '100%',
+			    placeholder: 'Tìm theo mã hoặc tên môn...',
+			    templateResult: formatCourse
+			});
+		    $('#instructorSelect').select2({
+		        dropdownParent: $('#modal'),
+		        width: '100%',
+		        placeholder: 'Chọn giảng viên'
+		    });
+	
+		    $('#theoryRoomId').select2({
+		        dropdownParent: $('#modal'),
+		        width: '100%',
+		        placeholder: 'Chọn phòng học'
+		    });
+		});
+		function formatCourse (course) {
+		    if (!course.id) { return course.text; }
+		    var $course = $(
+		        '<span><strong style="color: #2563eb;">' + course.text.split(' - ')[0] + '</strong> - ' + course.text.split(' - ')[1] + '</span>'
+		    );
+		    return $course;
+		};
+	    function openModal() { document.getElementById("modal").style.display = "block"; }
+	    function closeModal() { document.getElementById("modal").style.display = "none"; }
+	
+	    // Thêm nhóm thực hành động 
+	    function addLabRow() {
+	        const container = document.getElementById("labGroupsContainer");
+	        const div = document.createElement("div");
+	        div.className = "card";
+	        div.style = "margin-bottom: 10px; border-left: 5px solid #2ecc71; background: #fafffa; padding: 12px;";
+	        
+	        div.innerHTML = `
+	            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+	                <strong style="color: #27ae60;">Nhóm thực hành mới</strong>
+	                <button type="button" onclick="this.parentElement.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">Xóa nhóm</button>
+	            </div>
+	            <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 10px;">
+	                <select name="labDays" class="input">
+	                    <option value="2">T2</option><option value="3">T3</option><option value="4">T4</option>
+	                    <option value="5">T5</option><option value="6">T6</option><option value="7">T7</option>
+	                </select>
+	                <input type="text" name="labPeriods" class="input" placeholder="VD: 7-9" required pattern="\\d+-\\d+">
+	                <select name="labRoomIds" class="input">
+	                    ${document.getElementById("theoryRoomId").innerHTML}
+	                </select>
+	            </div>
+	        `;
+	        container.appendChild(div);
+	    }
+	
+	    // Lọc bảng danh sách lớp
+	    function filterClasses() {
+		    const search = document.getElementById("searchBox").value.toLowerCase();
+		    const major = document.getElementById("majorFilter").value;
+		    const semester = document.getElementById("semesterFilter").value;
+		    const training = document.getElementById("trainingFilter").value;
+		    
+		    const rows = document.querySelectorAll(".class-row");
+		
+		    rows.forEach(row => {
+		        const text = row.innerText.toLowerCase();
+		        const rowMajor = row.getAttribute("data-major");
+		        const rowSemester = row.getAttribute("data-semester");
+		        const rowTraining = row.getAttribute("data-training");
+		
+		        // Logic lọc: Nếu là "ALL" hoặc trùng giá trị thì True
+		        const matchSearch = text.includes(search);
+		        const matchMajor = (major === "ALL" || rowMajor === major);
+		        const matchSemester = (semester === "ALL" || rowSemester === semester);
+		        const matchTraining = (training === "ALL" || rowTraining === training);
+		
+		        if (matchSearch && matchMajor && matchSemester && matchTraining) {
+		            row.style.display = "";
+		        } else {
+		            row.style.display = "none";
+		        }
+		    });
+		}
+	</script>
+	
+	</div>
+</body>
+</html>

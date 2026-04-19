@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="admin-sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h3>Quản trị IUH</h3>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a th:href="@{/admin/dashboard}"
+           th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
+            <span>📊</span> Thống kê
+        </a>
+
+        <a th:href="@{/admin/semesters}"
+           th:classappend="${activeMenu == 'semesters'} ? ' active' : ''">
+            <span>📅</span> Quản lý Học kỳ
+        </a>
+
+        <a th:href="@{/admin/courses}"
+           th:classappend="${activeMenu == 'courses'} ? ' active' : ''">
+            <span>📖</span> Môn học
+        </a>
+
+        <a th:href="@{/admin/classes}"
+           th:classappend="${activeMenu == 'classes'} ? ' active' : ''">
+            <span>🏫</span> Lớp học
+        </a>
+
+        <a th:href="@{/admin/students}"
+           th:classappend="${activeMenu == 'students'} ? ' active' : ''">
+            <span>👨‍🎓</span> Sinh viên
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post" style="margin:0;">
+            <button type="submit" class="logout-btn" style="width:80%; border:none; cursor:pointer;">
+                Đăng xuất
+            </button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

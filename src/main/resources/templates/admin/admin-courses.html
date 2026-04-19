@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý môn học</title>
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-courses.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: admin-sidebar}"></div>
+
+<div class="main-content">
+
+    <div class="page-header">
+        <h2>Quản lý môn học</h2>
+        <button class="btn-add" onclick="openModal()">+ Thêm môn học</button>
+    </div>
+
+    <div class="toolbar">
+        <input type="text" id="courseSearch" placeholder="Tìm môn học..." onkeyup="filterCourses()">
+
+        <select id="majorFilter" onchange="filterCourses()">
+            <option value="ALL">Tất cả ngành</option>
+            <option th:each="m : ${majors}"
+                    th:value="${m.majorName}"
+                    th:text="${m.majorName}">
+            </option>
+        </select>
+    </div>
+
+    <table>
+        <thead>
+		    <tr>
+		        <th>Mã MH</th>
+		        <th>Tên môn học</th>
+		        <th>Tín chỉ</th>
+		        <th>Ngành</th>
+		        <th>Mô tả</th>
+		        <th>Hành động</th>
+		    </tr>
+		</thead>
+
+        <tbody id="courseTable">
+            <tr th:each="c : ${courses}">
+			    <td th:text="${c.courseId}"></td>
+			    <td th:text="${c.courseName}"></td>
+			    <td th:text="${c.credits}"></td>
+			    <td th:text="${c.majorName}"></td>
+			    <td th:text="${c.description ?: 'Chưa có mô tả'}"></td>
+			    <td>
+			        <a th:href="@{'/admin/courses/delete/' + ${c.courseId}}"
+			           class="btn btn-delete"
+			           onclick="return confirm('Xóa môn học này?')">
+			            Xóa
+			        </a>
+			    </td>
+			</tr>
+        </tbody>
+    </table>
+
+</div>
+
+<div id="courseModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Thêm môn học mới</h3>
+            <button type="button" class="close-btn" onclick="closeModal()">×</button>
+        </div>
+
+        <form th:action="@{/admin/courses/save}" method="post">
+            <label>Mã môn học</label>
+            <input type="text" name="courseId" required>
+
+            <label>Tên môn học</label>
+            <input type="text" name="courseName" required>
+
+            <label>Số tín chỉ</label>
+            <input type="number" name="credits" required>
+		
+            <label>Học kỳ gợi ý</label>
+            <input type="number" name="recommendedSemester" required>
+
+            <label>Ngành học</label>
+            <select name="major.majorId">
+                <option th:each="m : ${majors}"
+                        th:value="${m.majorId}"
+                        th:text="${m.majorName}">
+                </option>
+            </select>
+			<label>Mô tả môn học</label>
+			<textarea name="description"
+			          class="input textarea"
+			          placeholder="Nhập mô tả ngắn cho môn học..."></textarea>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal()">Hủy</button>
+                <button type="submit" class="btn-save">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openModal(){
+    document.getElementById("courseModal").style.display="flex";
+}
+
+function closeModal(){
+    document.getElementById("courseModal").style.display="none";
+}
+
+window.onclick=function(e){
+    const modal=document.getElementById("courseModal");
+    if(e.target===modal){
+        closeModal();
+    }
+};
+
+let filterTimeout;
+
+function filterCourses(){
+    clearTimeout(filterTimeout);
+
+    filterTimeout=setTimeout(()=>{
+        const keyword=document.getElementById("courseSearch").value.toLowerCase();
+        const major=document.getElementById("majorFilter").value;
+        const rows=document.querySelectorAll("#courseTable tr");
+
+        rows.forEach(row=>{
+            const code=row.cells[0].textContent.toLowerCase();
+            const name=row.cells[1].textContent.toLowerCase();
+            const rowMajor=row.cells[4].textContent.trim();
+
+            const matchText=
+                code.includes(keyword) ||
+                name.includes(keyword);
+
+            const matchMajor=
+                major==="ALL" ||
+                rowMajor===major;
+
+            row.style.display=(matchText && matchMajor) ? "" : "none";
+        });
+    },150);
+}
+</script>
+
+</body>
+</html>

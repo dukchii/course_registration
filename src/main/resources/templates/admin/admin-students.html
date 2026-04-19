@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách sinh viên</title>
+
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-students.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: admin-sidebar}"></div>
+
+<div class="page-content">
+    <a class="back" th:href="@{/admin/dashboard}">← Quay lại Dashboard</a>
+
+    <div class="page-header">
+        <h2 class="page-title">Danh sách sinh viên đã đăng ký tài khoản</h2>
+    </div>
+
+    <!-- ========================= -->
+    <!-- Bộ lọc -->
+    <!-- ========================= -->
+    <div class="filter-bar">
+	    <input type="text" id="searchInput" placeholder="🔍 Tìm MSSV hoặc họ tên...">
+	
+	    <select id="majorFilter">
+	        <option value="">Tất cả ngành</option>
+	        <option th:each="major : ${majors}"
+	                th:value="${major}"
+	                th:text="${major}">
+	        </option>
+	    </select>
+	
+	    <select id="trainingFilter">
+	        <option value="">Tất cả hệ đào tạo</option>
+	        <option value="Đại trà">Đại trà</option>
+	        <option value="Chất lượng cao">Chất lượng cao</option>
+	    </select>
+	
+	    <div class="current-semester-badge">
+		    Học kỳ hiện tại:
+		    <span th:text="${currentSemesterName}"></span>
+		</div>
+	</div>
+
+    <!-- ========================= -->
+    <!-- bảng -->
+    <!-- ========================= -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Mã SV</th>
+                <th>Username</th>
+                <th>Họ tên</th>
+                <th>Ngành</th>
+                <th>Hệ đào tạo</th>
+                <th>Kỳ học hiện tại</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+
+            <tbody id="studentTable">
+
+	            <th:block th:each="st, iter : ${students}">
+			        <!-- dòng chính -->
+			        <tr class="main-row"
+			            th:onclick="'toggleRow(' + ${iter.index} + ')'">
+			
+			            <td th:text="${st.studentId}"></td>
+			            <td th:text="${st.username}"></td>
+			            <td th:text="${st.fullName}"></td>
+			            <td th:text="${st.majorName}"></td>
+			
+			            <td>
+			                <span th:text="${st.trainingType}"
+			                      th:class="${st.trainingType == 'Chất lượng cao'} ?
+			                               'training-premium' :
+			                               'training-normal'">
+			                </span>
+			            </td>
+			
+			            <td th:text="${st.currentSemester}"></td>
+			
+			            <td style="color: blue; font-weight: bold;">
+			                Xem lớp ▼
+			            </td>
+			        </tr>
+			
+			        <!-- chi tiết -->
+			        <tr th:id="'detail-' + ${iter.index}"
+			            class="detail-row"
+			            style="display:none;">
+			            <td colspan="7">
+			                <div class="detail-box">
+			                    <strong>📌 Danh sách lớp học đã đăng ký:</strong>
+			
+			                    <table style="width:100%; margin-top:10px;">
+			                        <thead>
+			                            <tr>
+			                                <th>Mã lớp</th>
+			                                <th>Tên lớp</th>
+			                                <th>Môn học</th>
+			                                <th>Thao tác</th>
+			                            </tr>
+			                        </thead>
+			
+			                        <tbody>
+			                            <tr th:each="en : ${st.enrollments}">
+			                                <td th:text="${en.classId}"></td>
+			                                <td th:text="${en.className}"></td>
+			                                <td th:text="${en.courseName}"></td>
+			
+			                                <td style="text-align:center;">
+			                                    <form th:action="@{/admin/cancel-enrollment}"
+			                                          method="post"
+			                                          onsubmit="return confirm('Bạn có chắc muốn hủy lớp này?')">
+			
+			                                        <input type="hidden"
+			                                               name="enrollmentId"
+			                                               th:value="${en.enrollmentId}"/>
+			
+			                                        <button type="submit"
+			                                                class="btn-cancel">
+			                                            ❌ Hủy lớp
+			                                        </button>
+			                                    </form>
+			                                </td>
+			                            </tr>
+			
+			                            <tr th:if="${#lists.isEmpty(st.enrollments)}">
+			                                <td colspan="4"
+			                                    style="text-align:center; color:#999;">
+			                                    Sinh viên chưa đăng ký môn nào
+			                                </td>
+			                            </tr>
+			                        </tbody>
+			
+			                    </table>
+			                </div>
+			            </td>
+			        </tr>
+			    </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function toggleRow(index) {
+        document.querySelectorAll("[id^='detail-']").forEach(row => {
+            if (row.id !== 'detail-' + index) {
+                row.style.display = "none";
+            }
+        });
+
+        const row = document.getElementById('detail-' + index);
+        row.style.display = row.style.display === "none" ? "table-row" : "none";
+    }
+
+    function filterStudents() {
+        const keyword = document.getElementById("searchInput").value.toLowerCase();
+        const training = document.getElementById("trainingFilter").value.toLowerCase();
+        const major = document.getElementById("majorFilter").value.toLowerCase();
+
+        document.querySelectorAll(".student-row").forEach(row => {
+            const name = row.dataset.name?.toLowerCase() || "";
+            const code = row.dataset.code?.toLowerCase() || "";
+            const user = row.dataset.user?.toLowerCase() || "";
+            const rowTraining = row.dataset.training?.toLowerCase() || "";
+            const rowMajor = row.dataset.major?.toLowerCase() || "";
+
+            const matchKeyword =
+                name.includes(keyword) ||
+                code.includes(keyword) ||
+                user.includes(keyword);
+
+            const matchTraining =
+                !training || rowTraining === training;
+
+            const matchMajor =
+                !major || rowMajor === major;
+
+            row.style.display =
+                matchKeyword && matchTraining && matchMajor
+                    ? ""
+                    : "none";
+        });
+    }
+</script>
+
+</body>
+</html>

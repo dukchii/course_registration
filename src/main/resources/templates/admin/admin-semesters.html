@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý Học kỳ - IUH</title>
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}"> 
+    <link rel="stylesheet" th:href="@{/css/admin-semesters.css}"> 
+</head>
+    
+<body>
+	<div th:replace="~{fragments/sidebar :: admin-sidebar}"></div>
+    <div class="admin-container">
+    	<a class="back" th:href="@{/admin/dashboard}">← Quay lại Dashboard</a>
+        <div class="header-section">
+            <h2>🎓 Quản lý Danh sách Học kỳ</h2>
+            <p>Thiết lập học kỳ hiện tại để mở cổng đăng ký cho sinh viên.</p>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+		<div class="card">
+		    <h4>➕ Thêm học kỳ mới</h4>
+		    <form th:action="@{/admin/semesters/add}" method="post" class="form-group-container">
+		        <div style="flex: 1;">
+		            <label style="font-size: 13px; font-weight: 600; margin-bottom: 5px; display: block;">Học kỳ (Term)</label>
+		            <select name="term" class="form-control" required>
+		                <option value="HK1">Học kỳ 1</option>
+		                <option value="HK2">Học kỳ 2</option>
+		                <option value="HK3">Học kỳ 3 (Kỳ hè)</option>
+		            </select>
+		        </div>
+		        <div style="flex: 1;">
+		            <label style="font-size: 13px; font-weight: 600; margin-bottom: 5px; display: block;">Năm học</label>
+		            <input type="number" name="year" class="form-control" value="2026" required>
+		        </div>
+		        <button type="submit" class="btn btn-success">Lưu học kỳ</button>
+		    </form>
+		</div>
+		
+		<div class="card table-wrapper" style="padding:0;">
+			<table class="table">
+		        <thead>
+			        <tr>
+			            <th>Học kỳ</th>
+			            <th>Năm học</th>
+			            <th>Kỳ hiện tại</th>
+			            <th>Cổng đăng ký</th>
+			            <th>Hành động</th>
+			        </tr>
+			    </thead>
+		        <tbody>
+			        <tr th:each="s : ${semesters}">
+			            <td th:text="${s.term}"></td>
+			            <td th:text="${s.year}"></td>
+			            <td>
+			                <span th:if="${s.isActive}" class="badge bg-success">Đang hoạt động</span>
+			                <form th:if="${!s.isActive}" th:action="@{'/admin/semesters/activate/' + ${s.semesterId}}" method="post">
+			                    <button type="submit" class="btn btn-sm btn-outline-primary">Kích hoạt</button>
+			                </form>
+			            </td>
+			            <td>
+			                <form th:action="@{'/admin/semesters/toggle-registration/' + ${s.semesterId}}" method="post">
+			                    <button type="submit" 
+			                            th:class="${s.registrationOpen} ? 'btn btn-sm btn-success' : 'btn btn-sm btn-danger'">
+			                        <span th:text="${s.registrationOpen} ? '🔓 Đang Mở' : '🔒 Đang Đóng'"></span>
+			                    </button>
+			                </form>
+			            </td>
+			            <td>
+			                <a th:href="@{'/admin/semesters/delete/' + ${s.semesterId}}" 
+			                   onclick="return confirm('Xóa kỳ học này?')" class="text-danger">Xóa</a>
+			            </td>
+			        </tr>
+			    </tbody>
+		    </table>
+		</div>
+    </div>
+</body>
+</html>

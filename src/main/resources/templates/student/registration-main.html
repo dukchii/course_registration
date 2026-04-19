@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cổng Đăng Ký Học Phần</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/registration-main.css}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ================= ALERT ================= -->
+	<div th:if="${message != null}" 
+	     th:classappend="${message == 'SUCCESS' or #strings.contains(message, 'thành công')} ? 'alert-success' : 'alert-danger'"
+	     class="custom-alert" id="registration-alert">
+	    <div class="alert-container">
+	        <div class="alert-icon">
+	            <i th:class="${message == 'SUCCESS' or #strings.contains(message, 'thành công')} ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'"></i>
+	            <span th:if="${message == 'SUCCESS' or #strings.contains(message, 'thành công')}">✅</span>
+	            <span th:unless="${message == 'SUCCESS' or #strings.contains(message, 'thành công')}">🚀</span>
+	        </div>
+	        <div class="alert-content">
+	            <b class="alert-title" th:text="${message == 'SUCCESS' or #strings.contains(message, 'thành công')} ? 'Thông báo hệ thống' : 'Lỗi đăng ký'"></b>
+	            <p class="alert-text" th:text="${message == 'SUCCESS' ? 'Đăng ký học phần thành công!' : message}"></p>
+	        </div>
+	        <button class="alert-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+	    </div>
+	    <div class="alert-progress"></div>
+	</div>
+    <!-- ================= HEADER ================= -->
+    <div class="app-header">
+
+        <img src="/images/Logo-Iuh.png" style="width:160px;">
+
+        <h2>Cổng Đăng Ký Học Phần</h2>
+
+        <div class="header-right">
+		    <span>
+		        Trạng thái:
+		        <b th:text="${data.registrationOpen ? 'MỞ' : 'ĐÓNG'}"
+		           th:style="${data.registrationOpen ? 'color:green' : 'color:red'}">
+		        </b>
+		    </span>
+		    <a href="/logout" class="btn btn-cancel">Đăng xuất</a>
+		</div>
+    </div>
+
+    <!-- ================= STUDENT INFO ================= -->
+    <div class="user-info-card">
+	    <div class="user-main-info">
+	        <h3 class="student-name">
+	            <i class="fas fa-user-graduate"></i> 
+	            <span th:text="${data.student?.fullName}">Student Name</span>
+	        </h3>
+	        
+	        <div class="info-grid">
+	            <div class="info-item">
+	                <span class="label">MSSV:</span>
+	                <b class="value" th:text="${data.student?.studentId}"></b>
+	            </div>
+	            <div class="info-item">
+	                <span class="label">Ngành:</span>
+	                <b class="value" th:text="${data.student?.trainingType}"></b>
+	            </div>
+	            <div class="info-item">
+	                <span class="label">Kỳ học hiện tại:</span>
+	                <b class="value" th:text="${data.currentSemRank}"></b>
+	            </div>
+	        </div>
+	    </div>
+	
+	    <div class="semester-selector">
+	        <label for="sem-select">Học kỳ đăng ký:</label>
+	        <div class="select-wrapper">
+	            <select id="sem-select" onchange="changeSemester(this.value)">
+	                <option th:each="s : ${data.allSemesters}"
+	                        th:value="${s.semesterId}"
+	                        th:text="${s.term + ' - ' + s.year}"
+	                        th:selected="${s.semesterId == data.semesterId}">
+	                </option>
+	            </select>
+	            <i class="fas fa-chevron-down"></i>
+	        </div>
+	    </div>
+	</div>
+    <!-- ================= TAB ================= -->
+    <div class="tab-bar">
+	    <button onclick="switchTab('NEW')" class="active">🆕 Môn mới</button>
+	    <button onclick="switchTab('RETRY')">⚠️ Học lại</button>
+	    <button onclick="switchTab('UPGRADE')">📈 Cải thiện</button>
+	</div>
+	<div class="search-container">
+	    <div class="search-box">
+	        <i class="fas fa-search search-icon"></i>
+	        <input type="text" id="courseSearch" placeholder="Nhập tên môn học hoặc mã môn học để tìm nhanh..." onkeyup="filterCourses()">
+	        <span class="search-count" id="searchCount"></span>
+	    </div>
+	</div>
+    <!-- ================= NEW COURSES ================= -->
+    <div id="NEW" class="tab-content active">
+	    <div th:replace="~{::courseTable(courses=${data.newCourses})}"></div>
+	</div>
+	<div id="RETRY" class="tab-content">
+	    <div th:replace="~{::courseTable(courses=${data.retryCourses})}"></div>
+	</div>
+	
+	<div id="UPGRADE" class="tab-content">
+	    <div th:replace="~{::courseTable(courses=${data.upgradeCourses})}"></div>
+	</div>
+        <div th:fragment="courseTable(courses)">
+		    <div th:each="g : ${courses}" class="course-card">
+		        <details>
+		            <summary style="display: flex; justify-content: space-between; align-items: center;">
+		                <div>
+		                    <b th:text="${g.courseId}"></b> - <span th:text="${g.courseName}"></span>
+		                    (<span th:text="${g.credits}"></span> tín chỉ)
+		                    <div th:if="${g.prerequisiteName != null}" style="color: #d32f2f; font-size: 0.85em; margin-top: 4px;">
+					            ⚠️ Tiên quyết: <span th:text="${g.prerequisiteName}"></span>
+					        </div>
+		                </div>
+		                <span class="badge" th:text="${g.classes.size() + ' lớp đang mở'}" 
+		                      style="background: #e1f5fe; color: #01579b; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;"></span>
+		            </summary>
+		
+		            <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+		                <thead>
+		                    <tr style="background: #f8f9fa; text-align: left;">
+		                        <th>Lớp</th>
+		                        <th>Giảng viên</th>
+		                        <th>Sĩ số</th>
+		                        <th>Lịch học (LT)</th>
+		                        <th>Nhóm thực hành</th>
+		                        <th>Hành động</th>
+		                    </tr>
+		                </thead>
+		                <tbody>
+		                    <tr th:each="c : ${g.classes}" style="border-bottom: 1px solid #eee;">
+							    <td th:text="${c.className}"></td>
+							    <td th:text="${c.instructorName}"></td>
+							    <td th:text="${c.currentStudents + '/' + c.maxStudents}"></td>
+							    
+							    <td>
+							        <div th:each="sch : ${c.schedules}" th:if="${sch.type == 'THEORY'}">
+							            <small th:text="${'Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}"></small>
+							        </div>
+							    </td>
+							
+							    <td>
+								    <select th:id="'practice-' + ${c.classId}" class="input-sm" 
+								            style="font-size: 0.8em; width: 100%;" 
+								            th:onchange="|updatePracticeSchedule('${c.classId}', this)|">
+								        
+								        <option value="">-- Chọn nhóm TH (nếu có) --</option>
+								        
+								        <option th:each="sch : ${c.schedules}" 
+								                th:if="${sch.type == 'PRACTICE'}"
+								                th:value="${sch.scheduleId}"
+								                th:data-schedule="${'Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}"
+								                th:text="${sch.groupName + ' - Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}">
+								                </option>
+								        
+								    </select>
+								</td>
+							
+							    <td style="text-align: center;">
+								    <th:block th:with="currentReg=${data.getRegisteredEnrollmentByCourseId(g.courseId)}">
+								        
+								        <div style="margin-bottom: 8px;">
+								            <span th:if="${c.status == 'OPEN'}" 
+								                  style="color: #2c7a7b; background: #e6fffa; padding: 2px 5px; border-radius: 4px; font-size: 10px;">
+								                🟢 MỞ
+								            </span>
+								            <span th:unless="${c.status == 'OPEN'}" 
+								                  style="color: #c53030; background: #fff5f5; padding: 2px 5px; border-radius: 4px; font-size: 10px;">
+								                🔴 ĐÓNG
+								            </span>
+								        </div>
+								
+								        <div th:if="${currentReg != null and currentReg.classId == c.classId}" 
+								             style="color: #2e7d32; font-weight: bold;">
+								            ✅ Đã đăng ký
+								        </div>
+								
+								        <button th:if="${currentReg != null and currentReg.classId != c.classId}"
+										        class="btn btn-warning" 
+										        th:disabled="${c.status != 'OPEN' or !data.registrationOpen}"
+										        th:onclick="handleAction([[${c.classId}]], true, [[${currentReg.classId}]])">
+										    <span th:text="${data.registrationOpen ? 'Đổi lớp' : 'Đã đóng'}"></span>
+										</button>
+										
+										<button th:if="${currentReg == null}"
+										        class="btn btn-primary"
+										        th:disabled="${c.status != 'OPEN' or !data.registrationOpen}"
+										        th:onclick="handleAction([[${c.classId}]], false, null)">
+										    <span th:text="${data.registrationOpen ? 'Đăng ký' : 'Đã đóng đăng ký'}"></span>
+										</button>
+								    </th:block>
+								</td>
+							</tr>
+		                </tbody>
+		            </table>
+		        </details>
+		    </div>
+		</div>
+		
+	<!-- ================= MÔN HỌC ĐÃ ĐĂNG KÝ ================= -->
+	<div class="section">
+	    <h3>📌 Môn đã đăng ký</h3>
+	    <table th:unless="${#lists.isEmpty(data.registeredEnrollments)}" style="width: 100%; border-collapse: collapse;">
+	        <thead>
+	            <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
+	                <th style="padding: 12px; text-align: left;">Môn học / Lớp</th>
+	                <th style="padding: 12px; text-align: left;">Chi tiết lịch học</th>
+	                <th style="padding: 12px; text-align: right;">Thao tác</th>
+	            </tr>
+	        </thead>
+	        <tbody>
+	            <tr th:each="e : ${data.registeredEnrollments}" style="border-bottom: 1px solid #eee;">
+				    <td style="padding: 12px;">
+				        <b th:text="${e.courseName}"></b><br/>
+				        <div style="margin-top: 4px; font-size: 0.85em; color: #555;">
+				            <span>Lớp: <span th:text="${e.className}"></span></span>
+				            <span style="margin: 0 8px; color: #ccc;">|</span>
+				            <span>GV: <b th:text="${e.instructorName}"></b></span>
+				        </div>
+				    </td>
+				    <td style="padding: 12px;">
+				        <div th:each="sch : ${e.schedules}" th:if="${sch.type == 'THEORY'}">
+				            <span style="color: #1976d2; font-weight: 500;">📖 LT:</span>
+				            <span th:text="${'Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}"></span>
+				        </div>
+				        <div th:each="sch : ${e.schedules}" 
+				             th:if="${sch.type == 'PRACTICE' and sch.scheduleId == e.registeredPracticeId}">
+				            <span style="color: #ef6c00; font-weight: 500;">🛠 TH:</span>
+				            <span th:text="${sch.groupName + ' - Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}"></span>
+				        </div>
+				    </td>
+				    <td style="padding: 12px; text-align: right;">
+					    <a th:if="${data.registrationOpen}"
+					       th:href="@{'/cancel/' + ${e.classId}}" 
+					       class="btn btn-cancel" 
+					       onclick="return confirm('Bạn có chắc chắn muốn hủy môn học này?')">Hủy môn</a>
+					    
+					    <span th:unless="${data.registrationOpen}" style="color: #999; font-size: 0.8em;">
+					        Hết thời gian điều chỉnh
+					    </span>
+					</td>
+				</tr>
+	        </tbody>
+	    </table>
+	</div>
+    <!-- ================= TIMETABLE ================= -->
+    <div class="section">
+
+        <h3>📅 Thời khóa biểu</h3>
+
+        <table class="timetable">
+		    <thead>
+		        <tr>
+		            <th>Tiết</th>
+		            <th>Thứ 2</th>
+		            <th>Thứ 3</th>
+		            <th>Thứ 4</th>
+		            <th>Thứ 5</th>
+		            <th>Thứ 6</th>
+		            <th>Thứ 7</th>
+		        </tr>
+		    </thead>
+		    <tbody>
+		        <tr th:each="i : ${#numbers.sequence(1, 15)}">
+		            <td th:text="'Tiết ' + ${i}" style="background: #f8f9fa; font-weight: bold;"></td>
+		            <td th:each="d : ${#numbers.sequence(2, 7)}" th:id="'cell-' + ${d} + '-' + ${i}"></td>
+		        </tr>
+		    </tbody>
+		</table>
+
+    </div>
+
+</div>
+
+<!-- ================= JS ================= -->
+<script th:inline="javascript">
+// Lấy dữ liệu an toàn từ Server
+const registeredData = /*[[${data.registeredSafe}]]*/ [];
+
+// search
+function filterCourses() {
+    const input = document.getElementById('courseSearch');
+    const filter = input.value.toUpperCase();
+    
+    // Tìm tất cả các thẻ course-card trong tất cả các Tab
+    const courseCards = document.querySelectorAll('.course-card');
+    let count = 0;
+
+    courseCards.forEach(card => {
+        // Lấy text từ phần mã môn và tên môn (trong thẻ <b> và <span> của summary)
+        const summary = card.querySelector('summary div');
+        const textValue = summary.textContent || summary.innerText;
+
+        if (textValue.toUpperCase().indexOf(filter) > -1) {
+            card.style.display = ""; // Hiện
+            count++;
+        } else {
+            card.style.display = "none"; // Ẩn
+        }
+    });
+
+    // Hiển thị số lượng kết quả tìm thấy
+    const countDisplay = document.getElementById('searchCount');
+    if (filter === "") {
+        countDisplay.innerText = "";
+    } else {
+        countDisplay.innerText = `Tìm thấy ${count} môn`;
+    }
+}
+
+// các tab đăng ký mới học lại cải thiện
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.getElementById(tabId).style.display = 'block';
+    
+    document.querySelectorAll('.tab-bar button').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active'); // Dùng currentTarget an toàn hơn
+
+    // Reset tìm kiếm khi chuyển tab
+    document.getElementById('courseSearch').value = "";
+    filterCourses();
+}
+// hiển thị lịch khi chọn nhóm
+function updatePracticeSchedule(classId, selectElement) {
+    const displayDiv = document.getElementById('practice-desc-' + classId);
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    
+    if (selectedOption.value === "") {
+        displayDiv.innerText = "";
+    } else {
+        // Lấy dữ liệu từ attribute data-schedule chúng ta vừa thêm ở trên
+        displayDiv.innerText = selectedOption.getAttribute('data-schedule');
+    }
+}
+
+function changeSemester(id) {
+    window.location = '/registration?semesterId=' + id;
+}
+
+function handleAction(classId, isSwap, oldClassId) {
+    const practiceSelect = document.getElementById('practice-' + classId);
+    
+    // KIỂM TRA RÀNG BUỘC: Nếu lớp có nhóm thực hành mà chưa chọn thì không cho đăng ký
+    if (practiceSelect && practiceSelect.options.length > 1) { // length > 1 vì có option mặc định "-- Chọn nhóm --"
+        if (practiceSelect.value === "") {
+            alert("⚠️ Vui lòng chọn Nhóm thực hành trước khi đăng ký học phần này!");
+            practiceSelect.focus();
+            return; // Dừng hàm tại đây
+        }
+    }
+
+    const practiceId = practiceSelect ? practiceSelect.value : '';
+
+    let url = isSwap ? `/change/${oldClassId}/${classId}` : `/register/${classId}`;
+    if (practiceId) {
+        url += `?practiceId=${practiceId}`;
+    }
+
+    const msg = isSwap ? "Bạn có chắc chắn muốn ĐỔI sang lớp này?" : "Xác nhận đăng ký lớp học này?";
+    if (confirm(msg)) {
+        window.location.href = url;
+    }
+}
+// tạo lịch
+function renderTimetable() {
+    // 1. Xóa toàn bộ dữ liệu cũ trên bảng
+    document.querySelectorAll('.timetable td[id^="cell-"]').forEach(td => td.innerHTML = '');
+
+    if (!registeredData || registeredData.length === 0) return;
+	
+    registeredData.forEach(enroll => {
+        if (!enroll.schedules) return;
+        
+        enroll.schedules.forEach(s => {
+            const isTheory = (s.type === 'THEORY');
+            // So sánh ID buổi học hiện tại với ID thực hành sinh viên đã đăng ký
+            const isSelectedPractice = (s.type === 'PRACTICE' && s.scheduleId === enroll.registeredPracticeId);
+
+            if (isTheory || isSelectedPractice) {
+                for (let i = s.startPeriod; i <= s.endPeriod; i++) {
+                    const cellId = `cell-${s.dayOfWeek}-${i}`;
+                    const cell = document.getElementById(cellId);
+                    if (cell) {
+                        const typeLabel = isTheory ? '[LT]' : '[TH]';
+                        const bgColor = isTheory ? '#e3f2fd' : '#fff3e0'; // Xanh cho LT, Cam cho TH
+                        const borderColor = isTheory ? '#1976d2' : '#ef6c00';
+
+                        cell.innerHTML = `
+                            <div class="cell-content" style="background:${bgColor}; border-left:4px solid ${borderColor}; padding:4px; height:100%; border-radius:4px; box-shadow: 1px 1px 3px rgba(0,0,0,0.1);">
+                                <div style="font-weight:bold; color:${borderColor}; font-size:10px;">${typeLabel}</div>
+                                <div style="font-size:10px; line-height:1.2;">${enroll.courseName}</div>
+                            </div>`;
+                    }
+                }
+            }
+        });
+    });
+}
+
+// Chạy vẽ lịch khi trang load xong
+document.addEventListener('DOMContentLoaded', renderTimetable);
+
+// Tự động đóng Alert sau 5 giây
+setTimeout(() => {
+    const alert = document.getElementById('system-alert');
+    if(alert) alert.style.display = 'none';
+}, 5000);
+</script>
+
+</body>
+</html>

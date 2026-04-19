@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" th:href="@{/css/sidebar.css}">
+<link rel="stylesheet" th:href="@{/css/admin-dashboard.css}">
+</head>
+
+<body>
+	
+	<!-- SIDEBAR -->
+	<div th:replace="~{fragments/sidebar :: admin-sidebar}"></div>
+	
+	<!-- MAIN -->
+	<div class="main">
+	
+	    <!-- HEADER -->
+	    <div class="topbar">
+	        <h2>📊 Thống kê hệ thống</h2>
+	    </div>
+	    <!-- CHART -->
+	    <div class="card">
+	        <canvas id="chart"></canvas>
+	    </div>
+	
+	    <!-- STATS -->
+	    <div class="stats">
+	        <div class="stat-box blue">
+	            Tổng SV<br>
+	            <b th:text="${totalEnrolled}"></b>
+	        </div>
+	        <div class="stat-box green" style="cursor:pointer" onclick="quickFilter('CONFIRMED')">
+			    Đã xác nhận<br>
+			    <b th:text="${confirmedCount}"></b>
+			</div>
+			<div class="stat-box red" style="cursor:pointer" onclick="quickFilter('CANCELLED')">
+			    Đã hủy<br>
+			    <b th:text="${cancelledClasses}"></b>
+			</div>
+	        <div class="stat-box orange">
+	            Sĩ số thấp<br>
+	            <b th:text="${lowAttendanceCount}"></b>
+	        </div>
+	    </div>
+	
+	    <!-- FILTER -->
+	    <div class="filter-bar">
+		    <input type="text"
+		           id="search"
+		           class="filter-control"
+		           placeholder="🔍 Tìm mã lớp, môn học..."
+		           onkeyup="applyFilter()">
+		
+		    <select id="semesterFilter" class="filter-control" onchange="applyFilter()">
+		        <option value="ALL">-- Tất cả học kỳ --</option>
+		        <option th:each="s : ${semesters}"
+		                th:value="${s.semesterId}"
+		                th:text="${s.term + ' (' + s.year + ')'}">
+		        </option>
+		    </select>
+		
+		    <select id="majorFilter" class="filter-control" onchange="applyFilter()">
+		        <option value="ALL">-- Tất cả ngành --</option>
+		        <option th:each="m : ${allMajors}"
+		                th:value="${m.majorId}"
+		                th:text="${m.majorName}">
+		        </option>
+		        <option value="DC">Đại cương</option>
+		    </select>
+		
+		    <select id="trainingFilter" class="filter-control" onchange="applyFilter()">
+		        <option value="ALL">-- Hệ đào tạo --</option>
+		        <option value="Đại trà">Đại trà</option>
+		        <option value="Chất lượng cao">Chất lượng cao</option>
+		    </select>
+		
+		    <select id="statusFilter" class="filter-control" onchange="applyFilter()">
+		        <option value="ALL">-- Trạng thái --</option>
+		        <option value="OPEN">OPEN</option>
+		        <option value="CONFIRMED">CONFIRMED</option>
+		        <option value="CANCELLED">CANCELLED</option>
+		    </select>
+		</div>
+	
+	    <!-- TABLE -->
+	    <table>
+	        <thead>
+	        <tr>
+	            <th>Mã lớp</th>
+	            <th>Môn học</th>
+	            <th>Sĩ số</th>
+	            <th>Trạng thái</th>
+	            <th>Hành động</th>
+	        </tr>
+	        </thead>
+	
+	        <tbody id="tableBody">
+		        <tr th:each="c : ${class}"
+			        th:data-semester="${c.semester?.semesterId}"
+			        th:data-major="${c.course?.major != null ? c.course.major.majorId : 'DC'}"
+			        th:data-training="${c.trainingType ?: 'Đại trà'}"
+			        th:data-status="${c.status}">
+			        
+		            <td th:text="${c.classId}"></td>
+			        <td style="text-align: left; padding-left: 20px;">
+			            <div th:text="${c.course.courseName}" style="font-weight: 600;"></div>
+			            <small th:text="${c.course?.major?.majorName ?: 'Đại cương'}" style="color: #64748b;"></small>
+			        </td>
+			        <td th:text="|${c.enrollments.size()}/${c.maxStudents}|"></td>
+			        <td>
+			            <span class="status" th:classappend="${c.status}" th:text="${c.status}"></span>
+			        </td>
+			        <td>
+			            <form th:action="@{'/admin/confirm/' + ${c.classId}}" method="post" style="display:inline;">
+						    <button type="submit" 
+						            class="btn confirm"
+						            th:disabled="${(c.enrollments.size() * 1.0 / c.maxStudents) < 0.4}"
+						            th:style="${(c.enrollments.size() * 1.0 / c.maxStudents) < 0.4 ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
+						        Xác nhận
+						    </button>
+						</form>
+			            <a th:href="@{'/admin/cancel/' + ${c.classId}}" th:if="${c.status == 'OPEN'}">
+			                <button class="btn cancel">Hủy</button>
+			            </a>
+			            <div th:if="${c.status == 'CONFIRMED'}">
+					        <span style="color: #2ecc71; font-weight: bold;">✔️ Đã duyệt</span>
+					    </div>
+					
+					    <div th:if="${c.status == 'CANCELLED'}">
+					        <span style="color: #e74c3c; font-weight: bold;">❌ Đã hủy bỏ</span>
+					    </div>
+			        </td>
+		        </tr>
+	        </tbody>
+	    </table>
+	
+	</div>
+	
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+	const stx = document.getElementById('chart').getContext('2d');
+	
+	const confirmed = /*[[${confirmedCount}]]*/ 0;
+	const cancelled = /*[[${cancelledClasses}]]*/ 0;
+	const low = /*[[${lowAttendanceCount}]]*/ 0;
+	
+	new Chart(stx, {
+	    type: 'bar',
+	    data: {
+	        labels: ['Confirmed','Cancelled','Low'],
+	        datasets: [{
+	        	label: 'Thống kê lớp học',
+	            data: [confirmed, cancelled, low]
+	        }]
+	    }
+	});
+	/*]]>*/
+	/* FILTER REALTIME */
+	const search = document.getElementById("search");
+	const filter = document.getElementById("filter");
+	const rows = document.querySelectorAll("#tableBody tr");
+	// lọc theo ngành, kỳ học...
+	function applyFilter() {
+	    // Lấy giá trị từ các ô lọc
+	    const keyword = document.getElementById("search").value.toLowerCase();
+	    const semester = document.getElementById("semesterFilter").value;
+	    const major = document.getElementById("majorFilter").value;
+	    const training = document.getElementById("trainingFilter").value;
+	    const status = document.getElementById("statusFilter").value;
+
+	    const rows = document.querySelectorAll("#tableBody tr");
+
+	    rows.forEach(row => {
+	        // Lấy dữ liệu từ data-attributes của dòng hiện tại
+	        const rowText = row.innerText.toLowerCase();
+	        const rowSemester = row.getAttribute("data-semester");
+	        const rowMajor = row.getAttribute("data-major");
+	        const rowTraining = row.getAttribute("data-training");
+	        const rowStatus = row.getAttribute("data-status");
+
+	        // Kiểm tra từng điều kiện (Nếu là ALL thì mặc định là đúng)
+	        const matchSearch = rowText.includes(keyword);
+	        const matchSemester = (semester === "ALL" || rowSemester === semester);
+	        const matchMajor = (major === "ALL" || rowMajor === major);
+	        const matchTraining = (training === "ALL" || rowTraining === training);
+	        const matchStatus = (status === "ALL" || rowStatus === status);
+
+	        // Hiển thị dòng nếu thỏa mãn TẤT CẢ điều kiện
+	        if (matchSearch && matchSemester && matchMajor && matchTraining && matchStatus) {
+	            row.style.display = "";
+	        } else {
+	            row.style.display = "none";
+	        }
+	    });
+	}
+	// stat đã hủy đã xác nhận
+	function quickFilter(statusValue) {
+	    // Đặt giá trị cho dropdown status
+	    document.getElementById("statusFilter").value = statusValue;
+	    // Gọi hàm lọc
+	    applyFilter(); 
+	}
+	search.addEventListener("keyup", applyFilter);
+	filter.addEventListener("change", applyFilter);
+	</script>
+
+</body>
+</html>
