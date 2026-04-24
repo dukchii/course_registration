@@ -90,7 +90,7 @@ tbody tr:hover{
 }
 
 .modal-content{
-    width:480px;
+    width:680px;
     background:white;
     border-radius:16px;
     padding:24px;
@@ -131,6 +131,29 @@ tbody tr:hover{
     border:1px solid #ccc;
     border-radius:8px;
     font-size:14px;
+}
+.select-multiple {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    line-height: 1.6;
+}
+
+.select-multiple option {
+    padding: 5px 10px;
+    border-bottom: 1px dashed #eee;
+}
+
+.select-multiple option:checked {
+    background-color: #e3f2fd !important;
+    color: #1976d2;
+}
+
+.help-text {
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
+    display: block;
 }
 
 .modal-actions{

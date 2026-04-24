@@ -329,6 +329,70 @@ button:disabled {
     background: #fff;
 }
 
+/* Container chính cho phần môn bị khóa */
+.locked-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa; /* Nền xám nhạt */
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+/* Tiêu đề phần Locked */
+.locked-section h3 {
+    color: #6c757d;
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Hiệu ứng làm mờ bảng để tạo cảm giác "Disabled" */
+.locked-section .table {
+    background-color: #ffffff;
+    opacity: 0.8; /* Làm mờ nhẹ */
+    filter: grayscale(0.5); /* Chuyển nhẹ sang tông màu xám */
+}
+
+/* Header của bảng */
+.locked-section .table thead th {
+    background-color: #e9ecef;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Badge hiển thị môn tiên quyết */
+.locked-section .badge {
+    padding: 6px 12px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    background-color: #fff3cd; /* Màu vàng cảnh báo */
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+/* Trạng thái khóa */
+.locked-section .text-danger {
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Hiệu ứng khi rê chuột vào dòng bị khóa */
+.locked-section tbody tr:hover {
+    background-color: #f1f3f5;
+    opacity: 1; /* Hiện rõ lên khi hover */
+    transition: all 0.3s ease;
+}
+
+/* Icon khóa (nếu bạn dùng FontAwesome) */
+.locked-section .fa-lock {
+    color: #adb5bd;
+}
+
 /* Course Table & Details */
 .course-card {
     border: 1px solid var(--border-color);

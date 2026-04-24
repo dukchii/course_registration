@@ -49,11 +49,11 @@
 			    <td th:text="${c.majorName}"></td>
 			    <td th:text="${c.description ?: 'Chưa có mô tả'}"></td>
 			    <td>
-			        <a th:href="@{'/admin/courses/delete/' + ${c.courseId}}"
-			           class="btn btn-delete"
-			           onclick="return confirm('Xóa môn học này?')">
-			            Xóa
-			        </a>
+			        <button type="button" 
+					        class="btn btn-delete btn-confirm-delete" 
+					        th:data-id="${c.courseId}">
+					    Xóa
+					</button>
 			    </td>
 			</tr>
         </tbody>
@@ -92,6 +92,18 @@
 			<textarea name="description"
 			          class="input textarea"
 			          placeholder="Nhập mô tả ngắn cho môn học..."></textarea>
+			<label>Môn học tiên quyết (Có thể chọn nhiều)</label>
+			<div class="select-wrapper">
+			    <select name="prerequisites" multiple class="input select-multiple" style="height: 150px; font-family: monospace;">
+			        <option th:each="courseItem : ${courses}"
+			                th:value="${courseItem.courseId}"
+			                th:text="${courseItem.courseId + ' | ' + #strings.abbreviate(courseItem.courseName, 25) + ' | Ngành: ' + (courseItem.majorName ?: 'Đại cương')}">
+			        </option>
+			    </select>
+			</div>
+			<small style="color: #666; display: block; margin-bottom: 10px;">
+			    Giữ phím <b>Ctrl</b> để chọn nhiều môn.
+			</small>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeModal()">Hủy</button>
                 <button type="submit" class="btn-save">Lưu</button>
@@ -143,6 +155,36 @@ function filterCourses(){
         });
     },150);
 }
+document.addEventListener('DOMContentLoaded', function() {
+    // Lắng nghe tất cả nút có class btn-confirm-delete
+    document.querySelectorAll('.btn-confirm-delete').forEach(button => {
+        button.addEventListener('click', async function() {
+            const courseId = this.getAttribute('data-id'); // Lấy ID từ data-id
+            
+            try {
+                // Gọi Java Controller để lấy dữ liệu đệ quy
+                const response = await fetch(`/admin/courses/check-impact/${courseId}`);
+                const impactedCourses = await response.json();
+
+                let message = "Bạn có chắc chắn muốn xóa môn học này không?";
+
+                if (impactedCourses && impactedCourses.length > 0) {
+                    const listNames = impactedCourses.map(c => `• ${c.id}: ${c.name}`).join('\n');
+                    message = `⚠️ CẢNH BÁO HỆ THỐNG:\n\nMôn này là tiên quyết của ${impactedCourses.length} môn khác.\nNếu xóa, các môn sau sẽ bị ảnh hưởng:\n\n${listNames}\n\nBạn vẫn muốn tiếp tục?`;
+                }
+
+                if (confirm(message)) {
+                    window.location.href = `/admin/courses/delete/${courseId}`;
+                }
+            } catch (error) {
+                console.error("Lỗi đệ quy:", error);
+                if (confirm("Lỗi kiểm tra hệ thống. Vẫn xóa môn này?")) {
+                    window.location.href = `/admin/courses/delete/${courseId}`;
+                }
+            }
+        });
+    });
+});
 </script>
 
 </body>

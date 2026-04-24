@@ -19,7 +19,7 @@ public class RegistrationPageDTO {
     private List<CourseGroupDTO> newCourses;
     private List<CourseGroupDTO> retryCourses;
     private List<CourseGroupDTO> upgradeCourses;
-
+    private List<CourseGroupDTO> lockedCourses;
     private List<EnrollmentDTO> registeredEnrollments;
 
     // dùng cho JS timetable
@@ -173,5 +173,13 @@ public class RegistrationPageDTO {
 
 	public void setRecommendedCourses(List<CourseGroupDTO> recommendedCourses) {
 		this.recommendedCourses = recommendedCourses;
+	}
+
+	public List<CourseGroupDTO> getLockedCourses() {
+		return lockedCourses;
+	}
+
+	public void setLockedCourses(List<CourseGroupDTO> lockedCourses) {
+		this.lockedCourses = lockedCourses;
 	}
 }

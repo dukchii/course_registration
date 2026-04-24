@@ -18,13 +18,16 @@
 	     class="custom-alert" id="registration-alert">
 	    <div class="alert-container">
 	        <div class="alert-icon">
-	            <i th:class="${message == 'SUCCESS' or #strings.contains(message, 'thành công')} ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'"></i>
 	            <span th:if="${message == 'SUCCESS' or #strings.contains(message, 'thành công')}">✅</span>
-	            <span th:unless="${message == 'SUCCESS' or #strings.contains(message, 'thành công')}">🚀</span>
+	            <span th:unless="${message == 'SUCCESS' or #strings.contains(message, 'thành công')}">❌</span>
 	        </div>
 	        <div class="alert-content">
-	            <b class="alert-title" th:text="${message == 'SUCCESS' or #strings.contains(message, 'thành công')} ? 'Thông báo hệ thống' : 'Lỗi đăng ký'"></b>
-	            <p class="alert-text" th:text="${message == 'SUCCESS' ? 'Đăng ký học phần thành công!' : message}"></p>
+	            <b class="alert-title" 
+	               th:text="${message == 'SUCCESS' or #strings.contains(message, 'thành công')} ? 'Thông báo hệ thống' : 'Lỗi hệ thống'">
+	            </b>
+	            <p class="alert-text" 
+	               th:text="${message == 'SUCCESS' ? 'Thao tác thành công!' : message}">
+	            </p>
 	        </div>
 	        <button class="alert-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
 	    </div>
@@ -91,6 +94,7 @@
 	    <button onclick="switchTab('NEW')" class="active">🆕 Môn mới</button>
 	    <button onclick="switchTab('RETRY')">⚠️ Học lại</button>
 	    <button onclick="switchTab('UPGRADE')">📈 Cải thiện</button>
+	    <button onclick="switchTab('LOCKED')" style="color: #d32f2f;">🔒 Chưa đủ điều kiện</button>
 	</div>
 	<div class="search-container">
 	    <div class="search-box">
@@ -110,102 +114,125 @@
 	<div id="UPGRADE" class="tab-content">
 	    <div th:replace="~{::courseTable(courses=${data.upgradeCourses})}"></div>
 	</div>
-        <div th:fragment="courseTable(courses)">
-		    <div th:each="g : ${courses}" class="course-card">
-		        <details>
-		            <summary style="display: flex; justify-content: space-between; align-items: center;">
-		                <div>
-		                    <b th:text="${g.courseId}"></b> - <span th:text="${g.courseName}"></span>
-		                    (<span th:text="${g.credits}"></span> tín chỉ)
-		                    <div th:if="${g.prerequisiteName != null}" style="color: #d32f2f; font-size: 0.85em; margin-top: 4px;">
-					            ⚠️ Tiên quyết: <span th:text="${g.prerequisiteName}"></span>
-					        </div>
-		                </div>
-		                <span class="badge" th:text="${g.classes.size() + ' lớp đang mở'}" 
-		                      style="background: #e1f5fe; color: #01579b; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;"></span>
-		            </summary>
-		
-		            <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
-		                <thead>
-		                    <tr style="background: #f8f9fa; text-align: left;">
-		                        <th>Lớp</th>
-		                        <th>Giảng viên</th>
-		                        <th>Sĩ số</th>
-		                        <th>Lịch học (LT)</th>
-		                        <th>Nhóm thực hành</th>
-		                        <th>Hành động</th>
-		                    </tr>
-		                </thead>
-		                <tbody>
-		                    <tr th:each="c : ${g.classes}" style="border-bottom: 1px solid #eee;">
-							    <td th:text="${c.className}"></td>
-							    <td th:text="${c.instructorName}"></td>
-							    <td th:text="${c.currentStudents + '/' + c.maxStudents}"></td>
-							    
-							    <td>
-							        <div th:each="sch : ${c.schedules}" th:if="${sch.type == 'THEORY'}">
-							            <small th:text="${'Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}"></small>
+       <div th:fragment="courseTable(courses)">
+	    <div th:each="g : ${courses}" class="course-card">
+	        <details>
+	            <summary style="display: flex; justify-content: space-between; align-items: center;">
+	                <div>
+	                    <b th:text="${g.courseId}"></b> - <span th:text="${g.courseName}"></span>
+	                    (<span th:text="${g.credits}"></span> tín chỉ)
+	                    <div th:if="${g.prerequisiteName != null}" style="color: #d32f2f; font-size: 0.85em; margin-top: 4px;">
+				            ⚠️ Tiên quyết: <span th:text="${g.prerequisiteName}"></span>
+				        </div>
+	                </div>
+	                <span class="badge" th:text="${g.classes.size() + ' lớp đang mở'}" 
+	                      style="background: #e1f5fe; color: #01579b; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;"></span>
+	            </summary>
+	
+	            <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+	                <thead>
+	                    <tr style="background: #f8f9fa; text-align: left;">
+	                        <th>Lớp</th>
+	                        <th>Giảng viên</th>
+	                        <th>Sĩ số</th>
+	                        <th>Lịch học (LT)</th>
+	                        <th>Nhóm thực hành</th>
+	                        <th>Hành động</th>
+	                    </tr>
+	                </thead>
+	                <tbody>
+	                    <tr th:each="c : ${g.classes}" style="border-bottom: 1px solid #eee;">
+						    <td th:text="${c.className}"></td>
+						    <td th:text="${c.instructorName}"></td>
+						    <td th:text="${c.currentStudents + '/' + c.maxStudents}"></td>
+						    
+						    <td>
+						        <div th:each="sch : ${c.schedules}" th:if="${sch.type == 'THEORY'}">
+						            <small th:text="${'Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}"></small>
+						        </div>
+						    </td>
+						
+						    <td>
+							    <select th:id="'practice-' + ${c.classId}" class="input-sm" 
+							            style="font-size: 0.8em; width: 100%;" 
+							            th:onchange="|updatePracticeSchedule('${c.classId}', this)|">
+							        
+							        <option value="">-- Chọn nhóm TH (nếu có) --</option>
+							        
+							        <option th:each="sch : ${c.schedules}" 
+							                th:if="${sch.type == 'PRACTICE'}"
+							                th:value="${sch.scheduleId}"
+							                th:data-schedule="${'Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}"
+							                th:text="${sch.groupName + ' - Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}">
+							                </option>
+							        
+							    </select>
+							</td>
+						
+						    <td style="text-align: center;">
+							    <th:block th:with="currentReg=${data.getRegisteredEnrollmentByCourseId(g.courseId)}">
+							        
+							        <div style="margin-bottom: 8px;">
+							            <span th:if="${c.status == 'OPEN'}" 
+							                  style="color: #2c7a7b; background: #e6fffa; padding: 2px 5px; border-radius: 4px; font-size: 10px;">
+							                🟢 MỞ
+							            </span>
+							            <span th:unless="${c.status == 'OPEN'}" 
+							                  style="color: #c53030; background: #fff5f5; padding: 2px 5px; border-radius: 4px; font-size: 10px;">
+							                🔴 ĐÓNG
+							            </span>
 							        </div>
-							    </td>
 							
-							    <td>
-								    <select th:id="'practice-' + ${c.classId}" class="input-sm" 
-								            style="font-size: 0.8em; width: 100%;" 
-								            th:onchange="|updatePracticeSchedule('${c.classId}', this)|">
-								        
-								        <option value="">-- Chọn nhóm TH (nếu có) --</option>
-								        
-								        <option th:each="sch : ${c.schedules}" 
-								                th:if="${sch.type == 'PRACTICE'}"
-								                th:value="${sch.scheduleId}"
-								                th:data-schedule="${'Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}"
-								                th:text="${sch.groupName + ' - Thứ ' + sch.dayOfWeek + ' (Tiết ' + sch.startPeriod + '-' + sch.endPeriod + ')'}">
-								                </option>
-								        
-								    </select>
-								</td>
+							        <div th:if="${currentReg != null and currentReg.classId == c.classId}" 
+							             style="color: #2e7d32; font-weight: bold;">
+							            ✅ Đã đăng ký
+							        </div>
 							
-							    <td style="text-align: center;">
-								    <th:block th:with="currentReg=${data.getRegisteredEnrollmentByCourseId(g.courseId)}">
-								        
-								        <div style="margin-bottom: 8px;">
-								            <span th:if="${c.status == 'OPEN'}" 
-								                  style="color: #2c7a7b; background: #e6fffa; padding: 2px 5px; border-radius: 4px; font-size: 10px;">
-								                🟢 MỞ
-								            </span>
-								            <span th:unless="${c.status == 'OPEN'}" 
-								                  style="color: #c53030; background: #fff5f5; padding: 2px 5px; border-radius: 4px; font-size: 10px;">
-								                🔴 ĐÓNG
-								            </span>
-								        </div>
-								
-								        <div th:if="${currentReg != null and currentReg.classId == c.classId}" 
-								             style="color: #2e7d32; font-weight: bold;">
-								            ✅ Đã đăng ký
-								        </div>
-								
-								        <button th:if="${currentReg != null and currentReg.classId != c.classId}"
-										        class="btn btn-warning" 
-										        th:disabled="${c.status != 'OPEN' or !data.registrationOpen}"
-										        th:onclick="handleAction([[${c.classId}]], true, [[${currentReg.classId}]])">
-										    <span th:text="${data.registrationOpen ? 'Đổi lớp' : 'Đã đóng'}"></span>
-										</button>
-										
-										<button th:if="${currentReg == null}"
-										        class="btn btn-primary"
-										        th:disabled="${c.status != 'OPEN' or !data.registrationOpen}"
-										        th:onclick="handleAction([[${c.classId}]], false, null)">
-										    <span th:text="${data.registrationOpen ? 'Đăng ký' : 'Đã đóng đăng ký'}"></span>
-										</button>
-								    </th:block>
-								</td>
-							</tr>
-		                </tbody>
-		            </table>
-		        </details>
-		    </div>
-		</div>
-		
+							        <button th:if="${currentReg != null and currentReg.classId != c.classId}"
+									        class="btn btn-warning" 
+									        th:disabled="${c.status != 'OPEN' or !data.registrationOpen}"
+									        th:onclick="handleAction([[${c.classId}]], true, [[${currentReg.classId}]])">
+									    <span th:text="${data.registrationOpen ? 'Đổi lớp' : 'Đã đóng'}"></span>
+									</button>
+									
+									<button th:if="${currentReg == null}"
+									        class="btn btn-primary"
+									        th:disabled="${c.status != 'OPEN' or !data.registrationOpen}"
+									        th:onclick="handleAction([[${c.classId}]], false, null)">
+									    <span th:text="${data.registrationOpen ? 'Đăng ký' : 'Đã đóng đăng ký'}"></span>
+									</button>
+							    </th:block>
+							</td>
+						</tr>
+	                </tbody>
+	            </table>
+	        </details>
+	    </div>
+	</div>
+	<div id="LOCKED" class="tab-content" style="display:none;">
+	    <div class="course-section">
+	        <table class="table" style="width: 100%; border-collapse: collapse;">
+	            <thead style="background: #f8f9fa;">
+	                <tr>
+	                    <th>Mã môn</th>
+	                    <th>Tên môn học</th>
+	                    <th>Tín chỉ</th>
+	                    <th>Môn tiên quyết thiếu</th>
+	                </tr>
+	            </thead>
+	            <tbody>
+	                <tr th:each="group : ${data.lockedCourses}" style="border-bottom: 1px solid #eee;">
+	                    <td th:text="${group.courseId}" style="padding: 10px;"></td>
+	                    <td th:text="${group.courseName}" style="padding: 10px;"></td>
+	                    <td th:text="${group.credits}" style="padding: 10px;"></td>
+	                    <td style="padding: 10px;">
+	                        <span style="color: #c53030; font-weight: 500;" th:text="${group.prerequisiteName}"></span>
+	                    </td>
+	                </tr>
+	            </tbody>
+	        </table>
+	    </div>
+	</div>
 	<!-- ================= MÔN HỌC ĐÃ ĐĂNG KÝ ================= -->
 	<div class="section">
 	    <h3>📌 Môn đã đăng ký</h3>

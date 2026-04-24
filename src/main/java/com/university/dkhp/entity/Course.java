@@ -28,12 +28,11 @@ public class Course {
     private Integer recommendedSemester;
     private int credits; // Số tín chỉ
     private String description;
-    // Một môn học có thể có nhiều lớp học (classes)
     @OneToMany(mappedBy = "course")
     private List<Classes> classes;
     @ManyToMany
     @JoinTable(
-        name = "prerequisites", // Tên bảng trung gian vừa tạo ở Bước 1
+        name = "prerequisites",
         joinColumns = @JoinColumn(name = "course_id"),
         inverseJoinColumns = @JoinColumn(name = "pre_course_id")
     )

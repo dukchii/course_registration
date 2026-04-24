@@ -114,7 +114,7 @@ public class RegistrationViewService {
         dto.setNewCourses(buildCourseGroups(grouped.getOrDefault("NEW", Map.of())));
         dto.setRetryCourses(buildCourseGroups(grouped.getOrDefault("RETRY", Map.of())));
         dto.setUpgradeCourses(buildCourseGroups(grouped.getOrDefault("UPGRADE", Map.of())));
-
+        dto.setLockedCourses(buildCourseGroups(grouped.getOrDefault("LOCKED", Map.of())));
         // 7.THỜI KHÓA BIỂU
         Semester selectedSem = (semesterId != null)
         	    ? semesterRepository.findById(semesterId).orElseThrow()

@@ -19,7 +19,7 @@ public class Room {
     @Column(name = "room_name")
     private String roomName;
 
-    private int capacity; // Số tín chỉ
+    private int capacity;
     private String type;
 	public Long getRoomId() {
 		return roomId;

@@ -16,7 +16,8 @@ public interface CourseRepository extends JpaRepository<Course, String> {
 
 	// Tìm kiếm môn học theo tên hoặc mã
     List<Course> findByCourseNameContainingIgnoreCase(String keyword);
-
+    // Tìm các môn có chứa mã môn tiên quyết trong danh sách prerequisites
+    List<Course> findByPrerequisites_CourseId(String courseId);
     // Lấy danh sách môn học theo ngành
     List<Course> findByMajorMajorId(String majorId);
 

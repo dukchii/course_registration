@@ -88,7 +88,7 @@ public class RegistrationController {
 
         registrationService.cancelEnrollment(studentId, classId);
 
-        ra.addFlashAttribute("message", "Đã hủy học phần");
+        ra.addFlashAttribute("message", "Đã hủy học phần thành công!");
 
         return "redirect:/registration";
     }
