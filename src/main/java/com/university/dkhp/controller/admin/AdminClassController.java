@@ -1,6 +1,5 @@
 package com.university.dkhp.controller.admin;
-
-
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,8 +9,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.university.dkhp.dto.admin.AdminClassDTO;
 import com.university.dkhp.dto.admin.CreateClassRequest;
 import com.university.dkhp.repository.CourseRepository;
 import com.university.dkhp.repository.InstructorRepository;
@@ -32,9 +33,9 @@ public class AdminClassController {
     @Autowired private SemesterRepository semesterRepository;
 
     @GetMapping("/classes")
-    public String classList(Model model) {
-
-        model.addAttribute("classes", adminClassService.getClassesForAdmin());
+    public String classList(@RequestParam(required = false) String majorId, Model model) {
+    	List<AdminClassDTO> list = adminClassService.getClassesForAdmin(majorId); 
+        model.addAttribute("classes", list);
 
         model.addAttribute("courses", courseRepository.findCoursesForAdmin());
         model.addAttribute("instructor", instructorRepository.findAll());
@@ -47,12 +48,12 @@ public class AdminClassController {
     @PostMapping("/create")
     public String createClass(@ModelAttribute CreateClassRequest req,
                               RedirectAttributes redirectAttributes) {
-
         try {
-        	adminClassService.createClass(req);
-            return "redirect:/admin/classes?success=true";
+            adminClassService.createClass(req);
+            return "redirect:/admin/classes?success=true" ;
         } catch (Exception e) {
-            return "redirect:/admin/classes?error=" + e.getMessage();
+            // Nếu lỗi, quay lại đúng ngành đang mở để Admin không phải chọn lại
+            return "redirect:/admin/classes?error=" + e.getMessage() + "&majorId=" + req.getMajorId();
         }
     }
 

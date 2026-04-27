@@ -99,6 +99,7 @@
 	        <h3 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">Mở lớp học & Chia nhóm thực hành</h3>
 	        
 	        <form action="/admin/create" method="post" id="createClassForm">
+	        	<input type="hidden" name="majorId" id="selectedMajorIdInput">
 	            <div class="form-grid">
 	                <div>
 					    <label>Môn học (Tìm kiếm)</label>
@@ -110,6 +111,7 @@
 						    </option>
 						</select>
 					</div>
+					
 	                <div>
 					    <label>Giảng viên phụ trách</label>
 					    <select name="instructorId" id="instructorSelect" class="input" required>
@@ -186,6 +188,16 @@
 			    placeholder: 'Tìm theo mã hoặc tên môn...',
 			    templateResult: formatCourse
 			});
+			$('#courseSelect').on('change', function() {
+			    const selectedText = $(this).find("option:selected").text();
+			    // Tách mã ngành nằm trong ngoặc vuông [ ]
+			    const majorCodeMatch = selectedText.match(/\[(.*?)\]/);
+			    if (majorCodeMatch) {
+			        const majorCode = majorCodeMatch[1];
+			        // Gán vào input ẩn và đồng thời cập nhật luôn thanh Filter chính
+			        document.getElementById("selectedMajorIdInput").value = (majorCode === 'Đại cương') ? 'DC' : majorCode;
+			    }
+			});
 		    $('#instructorSelect').select2({
 		        dropdownParent: $('#modal'),
 		        width: '100%',
@@ -198,6 +210,7 @@
 		        placeholder: 'Chọn phòng học'
 		    });
 		});
+		
 		function formatCourse (course) {
 		    if (!course.id) { return course.text; }
 		    var $course = $(
@@ -236,31 +249,12 @@
 	
 	    // Lọc bảng danh sách lớp
 	    function filterClasses() {
-		    const search = document.getElementById("searchBox").value.toLowerCase();
 		    const major = document.getElementById("majorFilter").value;
 		    const semester = document.getElementById("semesterFilter").value;
-		    const training = document.getElementById("trainingFilter").value;
-		    
-		    const rows = document.querySelectorAll(".class-row");
+		    const search = document.getElementById("searchBox").value;
 		
-		    rows.forEach(row => {
-		        const text = row.innerText.toLowerCase();
-		        const rowMajor = row.getAttribute("data-major");
-		        const rowSemester = row.getAttribute("data-semester");
-		        const rowTraining = row.getAttribute("data-training");
-		
-		        // Logic lọc: Nếu là "ALL" hoặc trùng giá trị thì True
-		        const matchSearch = text.includes(search);
-		        const matchMajor = (major === "ALL" || rowMajor === major);
-		        const matchSemester = (semester === "ALL" || rowSemester === semester);
-		        const matchTraining = (training === "ALL" || rowTraining === training);
-		
-		        if (matchSearch && matchMajor && matchSemester && matchTraining) {
-		            row.style.display = "";
-		        } else {
-		            row.style.display = "none";
-		        }
-		    });
+		    // Nếu thay đổi ngành, 	load lại trang để Server xử lý logic "1 ngành duy nhất"
+		    window.location.href = `/admin/classes?majorId=${major}&semesterId=${semester}`;
 		}
 	</script>
 	

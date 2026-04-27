@@ -45,25 +45,20 @@ public interface ClassesRepository extends JpaRepository<Classes, Long> {
 	List<Classes> findAllBySemesterSemesterIdAndTrainingTypeIgnoreCase(Integer semesterId, String trainingType);
 	// tìm lớp cho admin dto load trang nhanh hơn
 	@Query("""
-		    SELECT DISTINCT new com.university.dkhp.dto.admin.AdminClassDTO(
+		    SELECT new com.university.dkhp.dto.admin.AdminClassDTO(
 		        c.classId,
 		        c.className,
-		        course.courseName,
-		        m.majorId,
-		        m.majorName,
+		        c.course.courseId,
+		        c.course.courseName,
+		        null, 
 		        c.trainingType,
-		        instructor.fullName,
+		        c.instructor.fullName,
 		        c.currentStudents,
 		        c.maxStudents,
-		        semester.semesterId,
-		        m.majorName
+		        c.semester.semesterId,
+		        null
 		    )
 		    FROM Classes c
-		    LEFT JOIN c.course course
-		    LEFT JOIN course.majorCourses mc
-		    LEFT JOIN mc.major m
-		    LEFT JOIN c.instructor instructor
-		    LEFT JOIN c.semester semester
 		    ORDER BY c.classId DESC
 		""")
 		List<AdminClassDTO> findClassesForAdmin();

@@ -36,7 +36,6 @@ public class Classes {
     @JoinColumn(name = "instructor_id")
     private Instructor instructor;
 
-
     private int maxStudents;
     private int currentStudents;
     @Column(name = "training_type")

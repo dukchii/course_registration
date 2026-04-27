@@ -8,6 +8,7 @@ import lombok.Data;
 public class CreateClassRequest {
     private String courseId;
     private String className;
+    private String majorId;
     private String instructorId;
     private String trainingType;
     private String theoryDay;
@@ -31,6 +32,8 @@ public class CreateClassRequest {
 	public void setClassName(String className) {
 		this.className = className;
 	}
+	public String getMajorId() { return majorId; }
+    public void setMajorId(String majorId) { this.majorId = majorId; }
 	public String getInstructorId() {
 		return instructorId;
 	}

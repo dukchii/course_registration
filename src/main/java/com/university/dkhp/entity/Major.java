@@ -18,7 +18,8 @@ public class Major {
 
     @OneToMany(mappedBy = "major")
     private List<Student> students;
-
+    @OneToMany(mappedBy = "major")
+    private List<MajorCourse> majorCourses;
 	public String getMajorId() {
 		return majorId;
 	}
@@ -41,5 +42,13 @@ public class Major {
 
 	public void setStudents(List<Student> students) {
 		this.students = students;
+	}
+
+	public List<MajorCourse> getMajorCourses() {
+		return majorCourses;
+	}
+
+	public void setMajorCourses(List<MajorCourse> majorCourses) {
+		this.majorCourses = majorCourses;
 	}
 }

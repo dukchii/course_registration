@@ -35,13 +35,13 @@ public class RegistrationViewService {
     @Autowired
     private RegistrationService registrationService;
     @Autowired
+    private ClassesService classesService;
+    @Autowired
     private SemesterRepository semesterRepository;
     @Autowired
     private StudentRepository studentRepository;
     @Autowired
     private AcademicResultRepository academicResultRepository;
-    @Autowired
-    private ClassesService classesService;	
     @Autowired
     private ClassesRepository classesRepository; // Cần thiết để lấy lớp theo kỳ chọn
 
@@ -123,7 +123,7 @@ public class RegistrationViewService {
         // 7.THỜI KHÓA BIỂU
         Semester selectedSem = (semesterId != null)
         	    ? semesterRepository.findById(semesterId).orElseThrow()
-        	    : defaultSem; // defaultSem là kỳ ưu tiên OPEN hoặc NEWEST
+        	    : defaultSem; // defaultSem là kỳ OPEN 
         List<Enrollment> currentEnrollments = registrationService.getStudentEnrollmentsBySemester(studentId, selectedSem.getSemesterId());
 
         List<EnrollmentDTO> enrollmentDTOs = currentEnrollments.stream()

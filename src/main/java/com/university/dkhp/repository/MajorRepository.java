@@ -7,5 +7,5 @@ import com.university.dkhp.entity.Major;
 
 @Repository
 public interface MajorRepository extends JpaRepository<Major, String> {
-
+	
 }
