@@ -27,6 +27,7 @@ import com.university.dkhp.repository.AcademicResultRepository;
 import com.university.dkhp.repository.ClassesRepository;
 import com.university.dkhp.repository.SemesterRepository;
 import com.university.dkhp.repository.StudentRepository;
+import com.university.dkhp.service.ClassesService;
 import com.university.dkhp.service.RegistrationService;
 
 @Service
@@ -39,6 +40,8 @@ public class RegistrationViewService {
     private StudentRepository studentRepository;
     @Autowired
     private AcademicResultRepository academicResultRepository;
+    @Autowired
+    private ClassesService classesService;	
     @Autowired
     private ClassesRepository classesRepository; // Cần thiết để lấy lớp theo kỳ chọn
 
@@ -62,6 +65,8 @@ public class RegistrationViewService {
         RegistrationPageDTO dto = new RegistrationPageDTO();
         dto.setStudent(toStudentDTO(student));
         dto.setSemesterId(defaultSem.getSemesterId());
+        int currentSemRank = classesService.calculateCurrentSemester(student, defaultSem);
+        dto.setCurrentSemRank(currentSemRank);
 
         // --- 2. THIẾT LẬP TRẠNG THÁI KHÓA NÚT ---
         // registrationOpen trong DTO sẽ lấy giá trị từ isRegistrationOpen của Entity được chọn
