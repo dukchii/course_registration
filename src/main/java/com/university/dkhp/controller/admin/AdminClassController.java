@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,17 +45,17 @@ public class AdminClassController {
     }
 
     @PostMapping("/create")
-    public String createClass(@ModelAttribute CreateClassRequest req,
-                              RedirectAttributes redirectAttributes) {
+    public String createClass(CreateClassRequest req, RedirectAttributes ra) {
         try {
             adminClassService.createClass(req);
-            return "redirect:/admin/classes?success=true" ;
-        } catch (Exception e) {
-            // Nếu lỗi, quay lại đúng ngành đang mở để Admin không phải chọn lại
-            return "redirect:/admin/classes?error=" + e.getMessage() + "&majorId=" + req.getMajorId();
+            ra.addFlashAttribute("success", "Thêm lớp học thành công!");
+            return "redirect:/admin/classes";
+        } catch (RuntimeException e) {
+            // RedirectAttributes sẽ tự động Encode Unicode (tiếng Việt) cho bạn
+            ra.addAttribute("error", e.getMessage());
+            return "redirect:/admin/classes";
         }
     }
-
     @GetMapping("/classes/close/{id}")
     public String closeClass(@PathVariable Long id) {
     	adminClassService.closeRegistration(id);

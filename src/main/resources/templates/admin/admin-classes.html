@@ -106,9 +106,10 @@
 					    <select name="courseId" id="courseSelect" class="input" required>
 						    <option value="">-- Chọn môn học --</option>
 						    <option th:each="c : ${courses}" 
-						            th:value="${c.courseId}" 
-						            th:text="${c.courseId + ' - ' + c.courseName + ' [' + (c.majorName != null ? c.majorName : 'Đại cương') + ']'}">
-						    </option>
+							        th:value="${c.courseId}" 
+							        th:data-major-id="${c.majorId != null ? c.majorId : 'DC'}"
+							        th:text="${c.courseId + ' - ' + c.courseName + ' [' + (c.majorName != null ? c.majorName : 'Đại cương') + ']'}">
+							</option>
 						</select>
 					</div>
 					
@@ -189,14 +190,11 @@
 			    templateResult: formatCourse
 			});
 			$('#courseSelect').on('change', function() {
-			    const selectedText = $(this).find("option:selected").text();
-			    // Tách mã ngành nằm trong ngoặc vuông [ ]
-			    const majorCodeMatch = selectedText.match(/\[(.*?)\]/);
-			    if (majorCodeMatch) {
-			        const majorCode = majorCodeMatch[1];
-			        // Gán vào input ẩn và đồng thời cập nhật luôn thanh Filter chính
-			        document.getElementById("selectedMajorIdInput").value = (majorCode === 'Đại cương') ? 'DC' : majorCode;
-			    }
+			    // Lấy mã ngành từ thuộc tính data chúng ta vừa thêm ở trên
+			    const majorId = $(this).find(':selected').data('major-id');
+
+			    // Gán mã ngành (ví dụ: CNTT) vào input ẩn để gửi lên server
+			    document.getElementById("selectedMajorIdInput").value = majorId;
 			});
 		    $('#instructorSelect').select2({
 		        dropdownParent: $('#modal'),

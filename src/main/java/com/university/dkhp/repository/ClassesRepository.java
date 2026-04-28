@@ -41,25 +41,27 @@ public interface ClassesRepository extends JpaRepository<Classes, Long> {
     List<Classes> findActiveClasses();
 	// Tìm các lớp theo trạng thái
 	List<Classes> findByStatus(String status);
+	// tìm lớp theo ngành
+	List<Classes> findByMajor_MajorId(String majorId);
 	// tìm môn theo kỳ
 	List<Classes> findAllBySemesterSemesterIdAndTrainingTypeIgnoreCase(Integer semesterId, String trainingType);
 	// tìm lớp cho admin dto load trang nhanh hơn
 	@Query("""
-		    SELECT new com.university.dkhp.dto.admin.AdminClassDTO(
-		        c.classId,
-		        c.className,
-		        c.course.courseId,
-		        c.course.courseName,
-		        null, 
-		        c.trainingType,
-		        c.instructor.fullName,
-		        c.currentStudents,
-		        c.maxStudents,
-		        c.semester.semesterId,
-		        null
-		    )
-		    FROM Classes c
-		    ORDER BY c.classId DESC
-		""")
-		List<AdminClassDTO> findClassesForAdmin();
+	        SELECT new com.university.dkhp.dto.admin.AdminClassDTO(
+	            c.classId,
+	            c.className,
+	            c.course.courseId,
+	            c.course.courseName,
+	            c.major.majorId, 
+	            c.trainingType,
+	            c.instructor.fullName,
+	            c.currentStudents,
+	            c.maxStudents,
+	            c.semester.semesterId,
+	            c.major.majorName
+	        )
+	        FROM Classes c
+	        ORDER BY c.classId DESC
+	    """)
+	    List<AdminClassDTO> findClassesForAdmin();
 }

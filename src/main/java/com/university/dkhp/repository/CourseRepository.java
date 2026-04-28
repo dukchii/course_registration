@@ -39,13 +39,14 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     	        c.courseId,
     	        c.courseName,
     	        c.credits,
-    	        m.majorName,
+    	        MAX(m.majorName),
+    	        MAX(m.majorId), 
     	        c.description
     	    )
     	    FROM Course c
-    	    JOIN c.majorCourses mc
-    	    JOIN mc.major m
-    	    ORDER BY c.courseName ASC
-    	""")
-    	List<AdminCourseDTO> findCoursesForAdmin();
+    	    LEFT JOIN MajorCourse mc ON c.courseId = mc.course.courseId
+    	    LEFT JOIN Major m ON mc.major.majorId = m.majorId
+    	    GROUP BY c.courseId, c.courseName, c.credits, c.description
+    		""")
+    List<AdminCourseDTO> findCoursesForAdmin();
 }

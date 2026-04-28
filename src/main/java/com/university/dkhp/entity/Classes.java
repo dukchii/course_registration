@@ -44,7 +44,9 @@ public class Classes {
     private String status; // OPEN, CLOSED, CANCELLED
     @Column(name = "class_name")
     private String className;
-
+    @ManyToOne
+    @JoinColumn(name = "major_id") 
+    private Major major;
     @OneToMany(mappedBy = "classes", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Enrollment> enrollments;
@@ -140,5 +142,13 @@ public class Classes {
 
 	public void setTrainingType(String trainingType) {
 		this.trainingType = trainingType;
+	}
+
+	public Major getMajor() {
+		return major;
+	}
+
+	public void setMajor(Major major) {
+		this.major = major;
 	}
 }

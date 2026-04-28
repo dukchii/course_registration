@@ -2,7 +2,6 @@ package com.university.dkhp.service.admin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ public class AdminClassService {
     @Autowired private SemesterRepository semesterRepository;
     @Autowired private ScheduleRepository scheduleRepository;
     @Autowired private CourseRepository courseRepository;
-    @Autowired private MajorCourseRepository majorCourseRepository;
+    @Autowired private MajorRepository majorRepository;
     @Autowired
     private EnrollmentRepository enrollmentRepository;
 
@@ -39,41 +38,16 @@ public class AdminClassService {
 
     public List<AdminClassDTO> getClassesForAdmin(String filterMajorId) {
         List<AdminClassDTO> allDTOs = classesRepository.findClassesForAdmin();
-        List<AdminClassDTO> result = new ArrayList<>();
-
-        for (AdminClassDTO dto : allDTOs) {
-            List<MajorCourse> mcs = majorCourseRepository.findByCourseCourseId(dto.getCourseId());
-
-            // Kiểm tra filterMajorId có hợp lệ không (tránh lỗi null hoặc chuỗi trống)
-            boolean hasFilter = filterMajorId != null && !filterMajorId.trim().isEmpty() && !"ALL".equals(filterMajorId);
-
-            if (hasFilter) {
-                // Tìm chính xác ngành được yêu cầu trong danh sách ngành của môn học
-                Optional<MajorCourse> match = mcs.stream()
-                    .filter(mc -> mc.getMajor().getMajorId().equalsIgnoreCase(filterMajorId))
-                    .findFirst();
-
-                if (match.isPresent()) {
-                    dto.setMajorId(filterMajorId);
-                    dto.setCourseMajorName(match.get().getMajor().getMajorName());
-                    result.add(dto);
-                }
-            } else {
-                
-                if (!mcs.isEmpty()) {
-                    String allNames = mcs.stream()
-                                        .map(mc -> mc.getMajor().getMajorName())
-                                        .collect(Collectors.joining(", "));
-                    dto.setCourseMajorName(allNames);
-                    dto.setMajorId(mcs.get(0).getMajor().getMajorId());
-                } else {
-                    dto.setCourseMajorName("Đại cương");
-                    dto.setMajorId("DC");
-                }
-                result.add(dto);
-            }
+        
+        // Nếu không có filter, trả về tất cả
+        if (filterMajorId == null || filterMajorId.trim().isEmpty() || "ALL".equals(filterMajorId)) {
+            return allDTOs;
         }
-        return result;
+
+        // Nếu có filter, lọc trực tiếp trên list dựa vào majorId đã có sẵn trong DTO
+        return allDTOs.stream()
+                .filter(dto -> dto.getMajorId() != null && dto.getMajorId().equalsIgnoreCase(filterMajorId))
+                .collect(Collectors.toList());
     }
 
 
@@ -97,10 +71,19 @@ public class AdminClassService {
         newClass.setStatus("OPEN");
 
         // 2. Tìm Course (Dùng trực tiếp course_id như DB hiện tại)
-        // KHÔNG dùng MajorCourse ở đây vì DB của bạn không có cột liên kết đó
         newClass.setCourse(courseRepository.findById(req.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Môn học không tồn tại")));
-
+        // Gán Major trực tiếp cho lớp học
+        if (req.getMajorId() != null && !req.getMajorId().trim().isEmpty()) {
+            String majorId = req.getMajorId().trim();
+            // Kiểm tra nếu là "DC" hoặc "ALL" thì có thể để null hoặc gán ngành đại cương
+            if ("DC".equalsIgnoreCase(majorId) || "ALL".equalsIgnoreCase(majorId)) {
+                newClass.setMajor(null); 
+            } else {
+                newClass.setMajor(majorRepository.findById(majorId)
+                        .orElseThrow(() -> new RuntimeException("Mã ngành không tồn tại trong hệ thống: " + majorId)));
+            }
+        }
         // 3. Tìm Giảng viên và Học kỳ
         newClass.setInstructor(instructorRepository.findById(req.getInstructorId())
                 .orElseThrow(() -> new RuntimeException("Giảng viên không tồn tại")));

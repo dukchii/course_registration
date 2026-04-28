@@ -16,20 +16,21 @@ public class AdminClassDTO {
     private String selectedMajorId;
 
     public AdminClassDTO(Long classId, String className, String courseId, String courseName, 
-    						String majorId,String trainingType, String instructorName, 
-    						Integer currentStudents, Integer maxStudents, Integer semesterId, String selectedMajorId) {
-        this.classId = classId;
-        this.className = className;
-        this.courseId = courseId;
-        this.courseName = courseName;
-        this.majorId = majorId;
-        this.trainingType = trainingType;
-        this.instructorName = instructorName;
-        this.currentStudents = currentStudents;
-        this.maxStudents = maxStudents;
-        this.semesterId = semesterId;
-        this.selectedMajorId = selectedMajorId;
-    }
+	            String majorId, String trainingType, String instructorName, 
+	            Integer currentStudents, Integer maxStudents, Integer semesterId, 
+	            String courseMajorName) {
+	this.classId = classId;
+	this.className = className;
+	this.courseId = courseId;
+	this.courseName = courseName;
+	this.majorId = majorId;
+	this.trainingType = trainingType;
+	this.instructorName = instructorName;
+	this.currentStudents = currentStudents;
+	this.maxStudents = maxStudents;
+	this.semesterId = semesterId;
+	this.courseMajorName = courseMajorName;
+	}
     
     public Long getClassId() {
         return classId;
