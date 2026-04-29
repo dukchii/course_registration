@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 19, 2026 lúc 06:11 AM
+-- Thời gian đã tạo: Th4 29, 2026 lúc 03:42 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -20,11 +20,7 @@ SET time_zone = "+00:00";
 --
 -- Cơ sở dữ liệu: `dkhp`
 --
--- 1. Tạo cơ sở dữ liệu nếu chưa tồn tại
-CREATE DATABASE IF NOT EXISTS dkhp;
 
--- 2. Chỉ định sử dụng cơ sở dữ liệu này cho các lệnh bên dưới
-USE dkhp;
 -- --------------------------------------------------------
 
 --
@@ -245,76 +241,78 @@ CREATE TABLE `classes` (
   `max_students` int(11) DEFAULT NULL,
   `current_students` int(11) DEFAULT 0,
   `status` varchar(20) DEFAULT NULL,
-  `training_type` varchar(50) DEFAULT NULL
+  `training_type` varchar(50) DEFAULT NULL,
+  `major_id` varchar(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `classes`
 --
 
-INSERT INTO `classes` (`class_id`, `class_name`, `course_id`, `semester_id`, `instructor_id`, `max_students`, `current_students`, `status`, `training_type`) VALUES
-(1, 'CNTT26216042', 'INT101', 4, 'GV001', 50, 0, 'CANCELLED', 'Đại trà'),
-(2, 'CNTT26299230', 'INT102', 4, 'GV001', 40, 0, 'CANCELLED', 'Đại trà'),
-(3, 'QTKD26848026', 'BUS101', 4, 'GV001', 50, 0, 'OPEN', 'Đại trà'),
-(4, 'QTKD26342437', 'BUS101', 4, 'GV001', 40, 0, 'CANCELLED', 'Đại trà'),
-(6, 'LHP00001', 'MH0001', 4, 'GV002', 50, 0, 'OPEN', 'Đại trà'),
-(7, 'LHP00002', 'MH0002', 4, 'GV003', 50, 0, 'OPEN', 'Đại trà'),
-(8, 'LHP00003', 'MH0003', 4, 'GV004', 50, 0, 'OPEN', 'Chất lượng cao'),
-(9, 'LHP00004', 'MH0004', 4, 'GV005', 50, 0, 'OPEN', 'Chất lượng cao'),
-(10, 'LHP00005', 'MH0005', 4, 'GV006', 50, 0, 'OPEN', 'Đại trà'),
-(11, 'LHP00006', 'MH0006', 4, 'GV007', 50, 0, 'OPEN', 'Đại trà'),
-(12, 'LHP00007', 'MH0007', 4, 'GV008', 50, 1, 'OPEN', 'Đại trà'),
-(13, 'LHP00008', 'MH0008', 4, 'GV009', 50, 0, 'OPEN', 'Đại trà'),
-(14, 'LHP00009', 'MH0009', 4, 'GV010', 50, 0, 'OPEN', 'Đại trà'),
-(15, 'LHP00010', 'MH0010', 4, 'GV011', 50, 0, 'OPEN', 'Đại trà'),
-(16, 'LHP00011', 'MH0011', 4, 'GV012', 50, 0, 'OPEN', 'Đại trà'),
-(17, 'LHP00012', 'MH0012', 4, 'GV013', 50, 0, 'OPEN', 'Đại trà'),
-(18, 'LHP00013', 'MH0013', 4, 'GV014', 50, 0, 'OPEN', 'Đại trà'),
-(19, 'LHP00014', 'MH0014', 4, 'GV015', 50, 0, 'OPEN', 'Đại trà'),
-(20, 'LHP00015', 'MH0015', 4, 'GV016', 50, 0, 'OPEN', 'Đại trà'),
-(21, 'LHP00016', 'MH0016', 4, 'GV017', 50, 0, 'OPEN', 'Đại trà'),
-(22, 'LHP00017', 'MH0017', 4, 'GV018', 50, 0, 'OPEN', 'Đại trà'),
-(23, 'LHP00018', 'MH0018', 4, 'GV019', 50, 0, 'OPEN', 'Đại trà'),
-(24, 'LHP00019', 'MH0019', 4, 'GV020', 50, 0, 'OPEN', 'Đại trà'),
-(25, 'LHP00020', 'MH0020', 4, 'GV021', 50, 0, 'OPEN', 'Đại trà'),
-(26, 'LHP00021', 'MH0021', 4, 'GV022', 50, 0, 'OPEN', 'Đại trà'),
-(27, 'LHP00022', 'MH0022', 4, 'GV023', 50, 0, 'OPEN', 'Đại trà'),
-(28, 'LHP00023', 'MH0023', 4, 'GV024', 50, 0, 'OPEN', 'Đại trà'),
-(29, 'LHP00024', 'MH0024', 4, 'GV025', 50, 0, 'OPEN', 'Đại trà'),
-(30, 'LHP00025', 'MH0025', 4, 'GV026', 50, 0, 'OPEN', 'Đại trà'),
-(31, 'LHP00026', 'MH0026', 4, 'GV027', 50, 0, 'OPEN', 'Đại trà'),
-(32, 'LHP00027', 'MH0027', 4, 'GV028', 50, 0, 'OPEN', 'Chất lượng cao'),
-(33, 'LHP00028', 'MH0028', 4, 'GV029', 50, 0, 'OPEN', 'Chất lượng cao'),
-(34, 'LHP00029', 'MH0029', 4, 'GV030', 50, 0, 'OPEN', 'Chất lượng cao'),
-(35, 'LHP00030', 'MH0030', 4, 'GV001', 50, 1, 'OPEN', 'Đại trà'),
-(36, 'LHP00031', 'MH0031', 4, 'GV002', 50, 0, 'OPEN', 'Đại trà'),
-(37, 'LHP00032', 'MH0032', 4, 'GV003', 50, 0, 'OPEN', 'Đại trà'),
-(38, 'LHP00033', 'MH0033', 4, 'GV004', 50, 0, 'OPEN', 'Đại trà'),
-(39, 'LHP00034', 'MH0034', 4, 'GV005', 50, 0, 'OPEN', 'Đại trà'),
-(40, 'LHP00035', 'MH0035', 4, 'GV006', 50, 0, 'OPEN', 'Đại trà'),
-(41, 'LHP00036', 'MH0036', 4, 'GV007', 50, 0, 'OPEN', 'Đại trà'),
-(42, 'LHP00037', 'MH0037', 4, 'GV008', 50, 0, 'OPEN', 'Đại trà'),
-(43, 'LHP00038', 'MH0038', 4, 'GV009', 50, 0, 'OPEN', 'Đại trà'),
-(44, 'LHP00039', 'MH0039', 4, 'GV010', 50, 0, 'OPEN', 'Đại trà'),
-(45, 'LHP00040', 'MH0040', 4, 'GV011', 50, 0, 'OPEN', 'Đại trà'),
-(46, 'LHP00041', 'MH0041', 4, 'GV012', 50, 1, 'OPEN', 'Đại trà'),
-(47, 'LHP00042', 'MH0042', 4, 'GV013', 50, 0, 'OPEN', 'Đại trà'),
-(48, 'LHP00043', 'MH0043', 4, 'GV014', 50, 0, 'OPEN', 'Đại trà'),
-(49, 'LHP00044', 'MH0044', 4, 'GV015', 50, 0, 'OPEN', 'Đại trà'),
-(50, 'LHP00045', 'MH0045', 4, 'GV016', 50, 0, 'OPEN', 'Đại trà'),
-(51, 'KTPM26381021', 'MH0007', 4, 'GV003', 40, 0, 'OPEN', 'Đại trà'),
-(52, 'Lớp_INT101_K24_01', 'INT101', 1, 'GV001', 50, 50, 'CLOSED', 'Đại trà'),
-(53, 'Lớp_MAT101_K24_02', 'MAT101', 1, 'GV008', 60, 60, 'CLOSED', 'Đại trà'),
-(54, 'Lớp_ENG101_K24_01', 'ENG101', 1, 'GV010', 45, 45, 'CLOSED', 'Đại trà'),
-(55, 'Lớp_BUS101_K24_03', 'BUS101', 1, 'GV003', 50, 50, 'CLOSED', 'Đại trà'),
-(56, 'Lớp_INT102_K24_01', 'INT102', 2, 'GV001', 50, 50, 'CLOSED', 'Đại trà'),
-(57, 'Lớp_MAT102_K24_01', 'MAT102', 2, 'GV008', 60, 60, 'CLOSED', 'Đại trà'),
-(58, 'Lớp_MH0002_K24_01', 'MH0002', 2, 'GV003', 50, 50, 'CLOSED', 'Đại trà'),
-(59, 'Lớp_MH0010_K24_01', 'MH0010', 2, 'GV011', 50, 50, 'CLOSED', 'Đại trà'),
-(60, 'Lớp_INT201_K24_01', 'INT201', 3, 'GV002', 50, 50, 'CLOSED', 'Đại trà'),
-(61, 'Lớp_INT202_K24_01', 'INT202', 3, 'GV004', 50, 50, 'CLOSED', 'Chất lượng cao'),
-(62, 'Lớp_MH0001_K24_01', 'MH0001', 3, 'GV002', 50, 50, 'CLOSED', 'Đại trà'),
-(63, 'Lớp_MH0017_K24_01', 'MH0017', 3, 'GV018', 50, 50, 'CLOSED', 'Đại trà');
+INSERT INTO `classes` (`class_id`, `class_name`, `course_id`, `semester_id`, `instructor_id`, `max_students`, `current_students`, `status`, `training_type`, `major_id`) VALUES
+(1, 'CNTT26216042', 'INT101', 4, 'GV001', 50, 0, 'CANCELLED', 'Đại trà', 'CNTT'),
+(2, 'CNTT26299230', 'INT102', 4, 'GV001', 40, 0, 'CANCELLED', 'Đại trà', 'CNTT'),
+(3, 'QTKD26848026', 'BUS101', 4, 'GV001', 50, 1, 'OPEN', 'Đại trà', 'QTKD'),
+(4, 'QTKD26342437', 'BUS101', 4, 'GV001', 40, 0, 'CANCELLED', 'Đại trà', 'QTKD'),
+(6, 'LHP00001', 'MH0001', 4, 'GV002', 50, 0, 'OPEN', 'Đại trà', 'CNTT'),
+(7, 'LHP00002', 'MH0002', 4, 'GV003', 50, 0, 'OPEN', 'Đại trà', 'CNTT'),
+(8, 'LHP00003', 'MH0003', 4, 'GV004', 50, 0, 'OPEN', 'Chất lượng cao', 'CNTT'),
+(9, 'LHP00004', 'MH0004', 4, 'GV005', 50, 0, 'OPEN', 'Chất lượng cao', 'CNTT'),
+(10, 'LHP00005', 'MH0005', 4, 'GV006', 50, 0, 'OPEN', 'Đại trà', 'CNTT'),
+(11, 'LHP00006', 'MH0006', 4, 'GV007', 50, 0, 'OPEN', 'Đại trà', 'CNTT'),
+(12, 'LHP00007', 'MH0007', 4, 'GV008', 50, 1, 'OPEN', 'Đại trà', 'KTPM'),
+(13, 'LHP00008', 'MH0008', 4, 'GV009', 50, 0, 'OPEN', 'Đại trà', 'KTPM'),
+(14, 'LHP00009', 'MH0009', 4, 'GV010', 50, 0, 'OPEN', 'Đại trà', 'KTPM'),
+(15, 'LHP00010', 'MH0010', 4, 'GV011', 50, 0, 'OPEN', 'Đại trà', 'KTPM'),
+(16, 'LHP00011', 'MH0011', 4, 'GV012', 50, 0, 'OPEN', 'Đại trà', 'KTPM'),
+(17, 'LHP00012', 'MH0012', 4, 'GV013', 50, 0, 'OPEN', 'Đại trà', 'KTPM'),
+(18, 'LHP00013', 'MH0013', 4, 'GV014', 50, 0, 'OPEN', 'Đại trà', 'KHMT'),
+(19, 'LHP00014', 'MH0014', 4, 'GV015', 50, 0, 'OPEN', 'Đại trà', 'KHMT'),
+(20, 'LHP00015', 'MH0015', 4, 'GV016', 50, 0, 'OPEN', 'Đại trà', 'KHMT'),
+(21, 'LHP00016', 'MH0016', 4, 'GV017', 50, 0, 'OPEN', 'Đại trà', 'KHMT'),
+(22, 'LHP00017', 'MH0017', 4, 'GV018', 50, 0, 'OPEN', 'Đại trà', 'KHMT'),
+(23, 'LHP00018', 'MH0018', 4, 'GV019', 50, 0, 'OPEN', 'Đại trà', 'KHMT'),
+(24, 'LHP00019', 'MH0019', 4, 'GV020', 50, 1, 'OPEN', 'Đại trà', 'QTKD'),
+(25, 'LHP00020', 'MH0020', 4, 'GV021', 50, 0, 'OPEN', 'Đại trà', 'QTKD'),
+(26, 'LHP00021', 'MH0021', 4, 'GV022', 50, 0, 'OPEN', 'Đại trà', 'QTKD'),
+(27, 'LHP00022', 'MH0022', 4, 'GV023', 50, 0, 'OPEN', 'Đại trà', 'QTKD'),
+(28, 'LHP00023', 'MH0023', 4, 'GV024', 50, 0, 'OPEN', 'Đại trà', 'QTKD'),
+(29, 'LHP00024', 'MH0024', 4, 'GV025', 50, 0, 'OPEN', 'Đại trà', 'QTKD'),
+(30, 'LHP00025', 'MH0025', 4, 'GV026', 50, 0, 'OPEN', 'Đại trà', 'QTKD'),
+(31, 'LHP00026', 'MH0026', 4, 'GV027', 50, 0, 'OPEN', 'Đại trà', 'KETO'),
+(32, 'LHP00027', 'MH0027', 4, 'GV028', 50, 0, 'OPEN', 'Chất lượng cao', 'KETO'),
+(33, 'LHP00028', 'MH0028', 4, 'GV029', 50, 0, 'OPEN', 'Chất lượng cao', 'KETO'),
+(34, 'LHP00029', 'MH0029', 4, 'GV030', 50, 0, 'OPEN', 'Chất lượng cao', 'KETO'),
+(35, 'LHP00030', 'MH0030', 4, 'GV001', 50, 1, 'OPEN', 'Đại trà', 'KETO'),
+(36, 'LHP00031', 'MH0031', 4, 'GV002', 50, 0, 'OPEN', 'Đại trà', 'KETO'),
+(37, 'LHP00032', 'MH0032', 4, 'GV003', 50, 0, 'OPEN', 'Đại trà', 'KETO'),
+(38, 'LHP00033', 'MH0033', 4, 'GV004', 50, 0, 'OPEN', 'Đại trà', 'LOGI'),
+(39, 'LHP00034', 'MH0034', 4, 'GV005', 50, 0, 'OPEN', 'Đại trà', 'LOGI'),
+(40, 'LHP00035', 'MH0035', 4, 'GV006', 50, 0, 'OPEN', 'Đại trà', 'LOGI'),
+(41, 'LHP00036', 'MH0036', 4, 'GV007', 50, 0, 'OPEN', 'Đại trà', 'LOGI'),
+(42, 'LHP00037', 'MH0037', 4, 'GV008', 50, 0, 'OPEN', 'Đại trà', 'TMDT'),
+(43, 'LHP00038', 'MH0038', 4, 'GV009', 50, 0, 'OPEN', 'Đại trà', 'TMDT'),
+(44, 'LHP00039', 'MH0039', 4, 'GV010', 50, 0, 'OPEN', 'Đại trà', 'TMDT'),
+(45, 'LHP00040', 'MH0040', 4, 'GV011', 50, 0, 'OPEN', 'Đại trà', 'TMDT'),
+(46, 'LHP00041', 'MH0041', 4, 'GV012', 50, 1, 'OPEN', 'Đại trà', 'TCNH'),
+(47, 'LHP00042', 'MH0042', 4, 'GV013', 50, 0, 'OPEN', 'Đại trà', 'TCNH'),
+(48, 'LHP00043', 'MH0043', 4, 'GV014', 50, 0, 'OPEN', 'Đại trà', 'TCNH'),
+(49, 'LHP00044', 'MH0044', 4, 'GV015', 50, 0, 'OPEN', 'Đại trà', 'TCNH'),
+(50, 'LHP00045', 'MH0045', 4, 'GV016', 50, 0, 'OPEN', 'Đại trà', 'TCNH'),
+(51, 'KTPM26381021', 'MH0007', 4, 'GV003', 40, 0, 'OPEN', 'Đại trà', 'KTPM'),
+(52, 'Lớp_INT101_K24_01', 'INT101', 1, 'GV001', 50, 50, 'CLOSED', 'Đại trà', 'CNTT'),
+(53, 'Lớp_MAT101_K24_02', 'MAT101', 1, 'GV008', 60, 60, 'CLOSED', 'Đại trà', 'CNTT'),
+(54, 'Lớp_ENG101_K24_01', 'ENG101', 1, 'GV010', 45, 45, 'CLOSED', 'Đại trà', 'QTKD'),
+(55, 'Lớp_BUS101_K24_03', 'BUS101', 1, 'GV003', 50, 50, 'CLOSED', 'Đại trà', 'QTKD'),
+(56, 'Lớp_INT102_K24_01', 'INT102', 2, 'GV001', 50, 50, 'CLOSED', 'Đại trà', 'CNTT'),
+(57, 'Lớp_MAT102_K24_01', 'MAT102', 2, 'GV008', 60, 60, 'CLOSED', 'Đại trà', 'CNTT'),
+(58, 'Lớp_MH0002_K24_01', 'MH0002', 2, 'GV003', 50, 50, 'CLOSED', 'Đại trà', 'CNTT'),
+(59, 'Lớp_MH0010_K24_01', 'MH0010', 2, 'GV011', 50, 50, 'CLOSED', 'Đại trà', 'KTPM'),
+(60, 'Lớp_INT201_K24_01', 'INT201', 3, 'GV002', 50, 50, 'CLOSED', 'Đại trà', 'CNTT'),
+(61, 'Lớp_INT202_K24_01', 'INT202', 3, 'GV004', 50, 50, 'CLOSED', 'Chất lượng cao', 'CNTT'),
+(62, 'Lớp_MH0001_K24_01', 'MH0001', 3, 'GV002', 50, 50, 'CLOSED', 'Đại trà', 'CNTT'),
+(63, 'Lớp_MH0017_K24_01', 'MH0017', 3, 'GV018', 50, 50, 'CLOSED', 'Đại trà', 'KHMT'),
+(71, 'TMDT26731291', 'INT301', 4, 'GV004', 40, 0, 'OPEN', 'Đại trà', 'TMDT');
 
 -- --------------------------------------------------------
 
@@ -442,7 +440,8 @@ INSERT INTO `class_schedules` (`schedule_id`, `class_id`, `day_of_week`, `start_
 (201, 61, 3, 10, 12, 'THEORY', 'Lý thuyết', 2),
 (202, 61, 5, 1, 3, 'PRACTICE', 'Nhóm 1', 7),
 (203, 62, 6, 4, 6, 'THEORY', 'Lý thuyết', 3),
-(204, 63, 7, 7, 9, 'THEORY', 'Lý thuyết', 4);
+(204, 63, 7, 7, 9, 'THEORY', 'Lý thuyết', 4),
+(212, 71, 2, 1, 3, 'THEORY', 'Lý thuyết', 4);
 
 -- --------------------------------------------------------
 
@@ -556,7 +555,9 @@ CREATE TABLE `enrollments` (
 INSERT INTO `enrollments` (`enrollment_id`, `student_id`, `class_id`, `selected_practice_id`, `status`, `created_at`) VALUES
 (6, 'SV0001', 46, 142, 'ENROLLED', '2026-04-18 19:17:23'),
 (8, 'SV0001', 35, 131, 'ENROLLED', '2026-04-18 20:38:19'),
-(10, 'SV0001', 12, NULL, 'ENROLLED', '2026-04-18 20:41:12');
+(14, 'SV0001', 3, NULL, 'ENROLLED', '2026-04-27 08:09:42'),
+(15, 'SV0001', 12, NULL, 'ENROLLED', '2026-04-28 02:05:13'),
+(16, 'SV0001', 24, NULL, 'ENROLLED', '2026-04-28 02:05:27');
 
 -- --------------------------------------------------------
 
@@ -1349,7 +1350,8 @@ ALTER TABLE `classes`
   ADD PRIMARY KEY (`class_id`),
   ADD KEY `course_id` (`course_id`),
   ADD KEY `semester_id` (`semester_id`),
-  ADD KEY `instructor_id` (`instructor_id`);
+  ADD KEY `instructor_id` (`instructor_id`),
+  ADD KEY `fk_classes_majors` (`major_id`);
 
 --
 -- Chỉ mục cho bảng `class_schedules`
@@ -1456,25 +1458,25 @@ ALTER TABLE `academic_results`
 -- AUTO_INCREMENT cho bảng `classes`
 --
 ALTER TABLE `classes`
-  MODIFY `class_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `class_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 
 --
 -- AUTO_INCREMENT cho bảng `class_schedules`
 --
 ALTER TABLE `class_schedules`
-  MODIFY `schedule_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=205;
+  MODIFY `schedule_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=213;
 
 --
 -- AUTO_INCREMENT cho bảng `enrollments`
 --
 ALTER TABLE `enrollments`
-  MODIFY `enrollment_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `enrollment_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT cho bảng `major_courses`
 --
 ALTER TABLE `major_courses`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 
 --
 -- AUTO_INCREMENT cho bảng `roles`
@@ -1512,7 +1514,8 @@ ALTER TABLE `academic_results`
 ALTER TABLE `classes`
   ADD CONSTRAINT `classes_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`course_id`),
   ADD CONSTRAINT `classes_ibfk_2` FOREIGN KEY (`semester_id`) REFERENCES `semesters` (`semester_id`),
-  ADD CONSTRAINT `classes_ibfk_3` FOREIGN KEY (`instructor_id`) REFERENCES `instructors` (`instructor_id`);
+  ADD CONSTRAINT `classes_ibfk_3` FOREIGN KEY (`instructor_id`) REFERENCES `instructors` (`instructor_id`),
+  ADD CONSTRAINT `fk_classes_majors` FOREIGN KEY (`major_id`) REFERENCES `majors` (`major_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `class_schedules`
